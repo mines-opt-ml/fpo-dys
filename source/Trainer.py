@@ -64,7 +64,7 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
             loss.backward()
             optimizer.step()
 
-        print('epoch:', epoch, ', av. training loss = ', train_loss_ave)
+        # print('epoch:', epoch, ', av. training loss = ', train_loss_ave)
         epoch_time = time.time() - train_start_time
         train_time.append(epoch_time)
 
@@ -77,14 +77,18 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
             test_loss = criterion(path_batch, path_pred).item()
             scheduler.step(test_loss)
             test_loss_hist.append(test_loss)
-            print('epoch: ', epoch, 'test loss is ', test_loss)
+            # print('epoch: ', epoch, 'test loss is ', test_loss)
             ## Evaluate accuracy
             if graph_type == 'E':
                 accuracy = Compute_Perfect_Path_Acc(path_pred, path_batch, Edge_list, grid_size, device)
             else:
                 accuracy = Compute_Perfect_Path_Acc_V(path_pred, path_batch)
-            print('epoch: ', epoch, 'accuracy is ', accuracy)
+            # print('epoch: ', epoch, 'accuracy is ', accuracy)
             test_acc_hist.append(accuracy)
+        
+        print('epoch: ', epoch, '| ave_train_loss: ', "{:5.2e}".format(train_loss_ave), '| test loss: ', "{:<15f}".format(test_loss), '| accuracy: ', "{:<15f}".format(accuracy), '| time: ', "{:<15f}".format(epoch_time))
+            
+            
 
         epoch += 1
 
