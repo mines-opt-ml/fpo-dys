@@ -1,4 +1,4 @@
-# Assume path is currently 2022-SPO-with-DYS
+# Assume path is currently SPO-with-DYS
 
 
 import sys
@@ -16,8 +16,8 @@ import numpy as np
 device = 'cuda:0'
 
 ## Some fixed hyperparameters
-max_epochs = 200
-init_lr = 1e-2 # initial learning rate. We're using a scheduler.
+max_epochs = 100
+init_lr = 1e-2 # initial learning rate. We're using a scheduler. 
 torch.manual_seed(0)
 
 ## Some arrays
@@ -42,7 +42,7 @@ ta_trained_BB = []
 ne_trained_BB = []
 
 # Define Grid array for all models to solve
-grid_size_array = [5,10,15,20,25,30,50]
+grid_size_array = [5,10,20,30, 50, 100]
 
 # -----------------------------------------------------------
 # ------------------------ Train DYS ------------------------
@@ -79,17 +79,19 @@ for grid_size in grid_size_array:
   end_time = time.time()
   print('\n time to train DYS GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
-  ## Store data
-  tl_trained_DYS.append(tl_DYS[-1])
-  tt_trained_DYS.append(tt_DYS[-1])
-  ta_trained_DYS.append(ta_DYS[-1])
-  ne_trained_DYS.append(len(tt_DYS))
+ ## Store data
+  tl_trained_DYS = tl_DYS
+  tt_trained_DYS = tt_DYS
+  ta_trained_DYS = ta_DYS
+
+  print('length tl_trained_DYS = ', len(tl_trained_DYS))
+  print('length tt_trained_DYS = ', len(tt_trained_DYS))
+  print('length ta_trained_DYS = ', len(ta_trained_DYS))
 
   state = {
             'tl_trained_DYS': tl_trained_DYS,
-            'tt_trained_DYS': tl_trained_DYS,
+            'tt_trained_DYS': tt_trained_DYS,
             'ta_trained_DYS': ta_trained_DYS,
-            'ne_trained_DYS': ne_trained_DYS,
             }
 
   # Save weights
@@ -136,16 +138,18 @@ for grid_size in grid_size_array:
   print('\n time to train CVX GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
   ## Store data
-  tl_trained_CVX.append(tl_CVX[-1])
-  tt_trained_CVX.append(tt_CVX[-1])
-  ta_trained_CVX.append(ta_CVX[-1])
-  ne_trained_CVX.append(len(tt_CVX))
+  tl_trained_CVX = tl_CVX
+  tt_trained_CVX = tt_CVX
+  ta_trained_CVX = ta_CVX
+
+  print('length tl_trained_DYS = ', len(tl_trained_CVX))
+  print('length tt_trained_DYS = ', len(tt_trained_CVX))
+  print('length ta_trained_DYS = ', len(ta_trained_CVX))
 
   state = {
             'tl_trained_CVX': tl_trained_CVX,
-            'tt_trained_CVX': tl_trained_CVX,
+            'tt_trained_CVX': tt_trained_CVX,
             'ta_trained_CVX': ta_trained_CVX,
-            'ne_trained_CVX': ne_trained_CVX,
             }
 
   ## Save weights
@@ -154,10 +158,9 @@ for grid_size in grid_size_array:
   ## Save Histories
   torch.save(state, './results/'+'CVX_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
-# -----------------------------------------------------------
+# ---------------------------------------------------------------
 # ------------------------ Train PertOpt ------------------------
-# -----------------------------------------------------------
-
+# ---------------------------------------------------------------
 for grid_size in grid_size_array:
 
   ## Load data
@@ -185,21 +188,23 @@ for grid_size in grid_size_array:
   tl_PertOpt, tt_PertOpt, ta_PertOpt = trainer(PertOpt_net, train_dataset_v,
                                               test_dataset_v, grid_size, max_epochs,
                                               init_lr, graph_type='V', Edge_list = Edge_list,
-                                              device='cpu') # note PertOpt is not GPU compatible
+                                              device='cpu', max_time=np.inf, use_scheduler=False) # note PertOpt is not GPU compatible
   end_time = time.time()
   print('\n time to train PertOpt GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
   ## Store data
-  tl_trained_PertOpt.append(tl_PertOpt[-1])
-  tl_trained_PertOpt.append(tt_PertOpt[-1])
-  ta_trained_PertOpt.append(ta_PertOpt[-1])
-  ne_trained_PertOpt.append(len(tt_PertOpt))
+  tl_trained_PertOpt = tl_PertOpt
+  tt_trained_PertOpt = tt_PertOpt
+  ta_trained_PertOpt = ta_PertOpt
+
+  print('length tl_trained_DYS = ', len(tl_trained_PertOpt))
+  print('length tt_trained_DYS = ', len(tt_trained_PertOpt))
+  print('length ta_trained_DYS = ', len(ta_trained_PertOpt))
   
   state = {
             'tl_trained_PertOpt': tl_trained_PertOpt,
-            'tt_trained_PertOpt': tl_trained_PertOpt,
+            'tt_trained_PertOpt': tt_trained_PertOpt,
             'ta_trained_PertOpt': ta_trained_PertOpt,
-            'ne_trained_PertOpt': ne_trained_PertOpt,
             }
 
   ## Save weights
@@ -207,48 +212,4 @@ for grid_size in grid_size_array:
 
   ## Save Histories
   torch.save(state, './results/'+'PertOpt_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
-
-
-# plt.plot(tt_DYS, [item/tl_DYS[0] for item in tl_DYS], label="DYS",
-#              color = 'blue', linestyle= '--')
-
-# plt.legend()
-# plt.title('Normalized Test loss (y-axis) vs Training time elapsed')
-# plt.xlabel('time in s')
-# plt.ylabel('Normalized test loss')
-# plt.show()
-
-# plt.plot(tl_DYS, label="DYS", color = 'blue', linestyle= '--')
-
-# plt.plot(tl_CVX, label="CVX", color = 'red', linestyle= '--')
-
-# plt.plot(tl_PertOpt, label="PertOpt", color = 'black', linestyle= '--')
-# plt.legend()
-# plt.title('Test loss (y-axis) vs epochs')
-# plt.xlabel('Epochs')
-# plt.ylabel('Test loss')
-
-# plt.plot(ta_DYS, label="DYS", color = 'blue', linestyle= '--')
-
-# plt.plot(ta_CVX, label="CVX", color = 'red', linestyle= '--')
-
-# plt.plot(ta_PertOpt, label="PertOpt", color = 'black', linestyle= '--')
-# plt.legend()
-# plt.title('Test loss (y-axis) vs epochs')
-# plt.xlabel('Epochs')
-# plt.ylabel('Test accuracy')
-
-# # Plots entire thing.
-
-# # sizes = range(5,31,5)
-# sizes = grid_size_array
-# plt.plot(sizes, ta_trained_DYS, label="DYS", color = 'blue', linestyle= '--')
-
-# plt.plot(sizes, ta_trained_CVX, label="CVX", color = 'red', linestyle= '--')
-
-# plt.plot(sizes, ta_trained_PertOpt, label="PertOpt", color = 'black', linestyle= '--')
-# plt.legend()
-# plt.title('Test Acc (y-axis) vs epochs')
-# plt.xlabel('Epochs')
-# plt.ylabel('Test accuracy')
 
