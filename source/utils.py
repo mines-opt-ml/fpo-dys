@@ -6,6 +6,7 @@ November 2022
 import numpy as np
 import torch
 import itertools
+import matplotlib.pyplot as plt
 
 ## Small utility for rounding coordinates of points
 def RoundCoords(vertex_name):
@@ -105,6 +106,33 @@ def Compute_Perfect_Path_Acc_V(pred_batch, true_batch):
   
   return score/batch_size
 
+## Utility for computing "Regret" 
+def Regret(WW,d_batch, true_batch, pred_batch, type, Edge_list, grid_size, device):
+  '''
+  Computes the difference in length between predicted path and best path.
+  '''
+  WW = WW.to(device)
+  true_weights = torch.transpose(torch.matmul(WW, torch.transpose(d_batch, 0, 1)), 0, 1)
+  regret = 0.
+  batch_size = pred_batch.shape[0]
+  exception_timer = 0
+  for i in range(batch_size):
+    if type == "E":
+      curr_map = Edge_to_Node(pred_batch[i,:], Edge_list, grid_size, device)
+      true_map = Edge_to_Node(true_batch[i,:], Edge_list, grid_size, device)
+      path_map = Greedy_Decoder(curr_map, grid_size).to(device)
+      difference = path_map - true_map
+      temp_regret = torch.dot(difference.view(grid_size**2), true_weights[i,:])
+      # In rare cases, the network fails to predict a path traversing from top-left to
+      # bottom-right corner. In this case, the length of the predicted path can be shorter
+      # than the true_path. These cases are extremely rare, we assign them a regret equal
+      # to the length of the true path
+      if temp_regret >= 0:
+        regret += temp_regret
+      else:
+        regret += torch.dot(true_map.view(grid_size**2), true_weights[i,:])
+        
 
+  return regret/batch_size
     
 
