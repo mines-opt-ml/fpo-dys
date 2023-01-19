@@ -57,7 +57,7 @@ def trainer(net, train_dataset, test_dataset, grid_size, WW, max_epochs,
             regret = Regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
         else:
             accuracy = Compute_Perfect_Path_Acc_V(path_pred, path_batch)
-            regret = 1
+            regret = Regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
         # print('epoch: ', epoch, 'accuracy is ', accuracy)
         test_acc_hist.append(accuracy)
 
@@ -98,7 +98,7 @@ def trainer(net, train_dataset, test_dataset, grid_size, WW, max_epochs,
                 regret = Regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
             else:
                 accuracy = Compute_Perfect_Path_Acc_V(path_pred, path_batch)
-                regret = 1
+                regret = Regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
             # print('epoch: ', epoch, 'accuracy is ', accuracy)
             test_acc_hist.append(accuracy)
 
