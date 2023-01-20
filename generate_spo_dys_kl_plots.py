@@ -63,6 +63,8 @@ KL_array_PertOpt = []
 
 grid_size_array = [5, 10, 20, 30, 50, 100]
 
+cmap_str = 'viridis'
+
 for grid_size in grid_size_array:
 
   print('\n\n ------------------------------ GRID SIZE ', str(grid_size), ' ------------------------------')
@@ -107,6 +109,21 @@ for grid_size in grid_size_array:
   print('KL for DYS with gridsize ', str(grid_size), ' = ', avg_kl_DYS)
   KL_array_DYS.append(avg_kl_DYS.cpu())
 
+  data_name = 'PertOpt_' + str(grid_size) + '-by-' + str(grid_size) + '.pth'
+  temp_file_name = dir + data_name
+  state_dict = torch.load(temp_file_name, map_location=device)
+
+  PertOpt_net = Pert_ShortestPathNet(grid_size, context_size=5, device='cpu')
+  PertOpt_net.to('cpu')
+
+  PertOpt_net.load_state_dict(state_dict)
+
+  path_pred_PertOpt = PertOpt_net(d_batch.cpu()).detach()
+
+  avg_kl_PertOpt = compute_average_kl(path_batch.cpu(), path_pred_PertOpt, Edge_list, m, 'cpu', is_nodal=True)
+  print('KL for PertOpt with gridsize ', str(grid_size), ' = ', avg_kl_PertOpt)
+  KL_array_PertOpt.append(avg_kl_PertOpt.cpu())
+
   if grid_size<=30:
 
     # Load CVX
@@ -125,22 +142,22 @@ for grid_size in grid_size_array:
     print('KL for CVX with gridsize ', str(grid_size), ' = ', avg_kl_CVX)
     KL_array_CVX.append(avg_kl_CVX.cpu())
 
-  if grid_size<=50:
-    # Load PertOpt
-    data_name = 'PertOpt_' + str(grid_size) + '-by-' + str(grid_size) + '.pth'
-    temp_file_name = dir + data_name
-    state_dict = torch.load(temp_file_name, map_location=device)
+  # if grid_size<=100:
+  #   # Load PertOpt
+  #   data_name = 'PertOpt_' + str(grid_size) + '-by-' + str(grid_size) + '.pth'
+  #   temp_file_name = dir + data_name
+  #   state_dict = torch.load(temp_file_name, map_location=device)
 
-    PertOpt_net = Pert_ShortestPathNet(grid_size, context_size=5, device='cpu')
-    PertOpt_net.to('cpu')
+  #   PertOpt_net = Pert_ShortestPathNet(grid_size, context_size=5, device='cpu')
+  #   PertOpt_net.to('cpu')
 
-    PertOpt_net.load_state_dict(state_dict)
+  #   PertOpt_net.load_state_dict(state_dict)
 
-    path_pred_PertOpt = PertOpt_net(d_batch.cpu()).detach()
+  #   path_pred_PertOpt = PertOpt_net(d_batch.cpu()).detach()
 
-    avg_kl_PertOpt = compute_average_kl(path_batch.cpu(), path_pred_PertOpt, Edge_list, m, 'cpu', is_nodal=True)
-    print('KL for PertOpt with gridsize ', str(grid_size), ' = ', avg_kl_PertOpt)
-    KL_array_PertOpt.append(avg_kl_PertOpt.cpu())
+  #   avg_kl_PertOpt = compute_average_kl(path_batch.cpu(), path_pred_PertOpt, Edge_list, m, 'cpu', is_nodal=True)
+  #   print('KL for PertOpt with gridsize ', str(grid_size), ' = ', avg_kl_PertOpt)
+  #   KL_array_PertOpt.append(avg_kl_PertOpt.cpu())
 
 
   # ------------ Plot Predicted Paths -------------# 
@@ -154,25 +171,25 @@ for grid_size in grid_size_array:
     ax = plt.axes()
     for i in range(4):
 
-      ax.imshow(Edge_to_Node(path_pred_DYS[i], Edge_list, m,'cuda:0').cpu())
+      ax.imshow(Edge_to_Node(path_pred_DYS[i], Edge_list, m,'cuda:0').cpu(), cmap=cmap_str)
       ax.set_xticks([])
       ax.set_yticks([])
       save_str = './pred_path_plots/pred_path_DYS_grid_'+str(grid_size)+'_img'+str(i)+'.pdf'
       fig1.savefig(save_str, dpi=300 , bbox_inches="tight", pad_inches=0.0)
       
-      ax.imshow(Edge_to_Node(path_pred_CVX[i], Edge_list, m,'cuda:0').cpu())
+      ax.imshow(Edge_to_Node(path_pred_CVX[i], Edge_list, m,'cuda:0').cpu(), cmap=cmap_str)
       ax.set_xticks([])
       ax.set_yticks([])
       save_str = './pred_path_plots/pred_path_CVX_grid_'+str(grid_size)+'_img'+str(i)+'.pdf'
       fig1.savefig(save_str, dpi=300 , bbox_inches="tight", pad_inches=0.0)
      
-      ax.imshow(path_pred_PertOpt[i].cpu())
+      ax.imshow(path_pred_PertOpt[i].cpu(), cmap=cmap_str)
       ax.set_xticks([])
       ax.set_yticks([])
       save_str = './pred_path_plots/pred_path_PertOpt_grid_'+str(grid_size)+'_img'+str(i)+'.pdf'
       fig1.savefig(save_str, dpi=300 , bbox_inches="tight", pad_inches=0.0)
 
-      ax.imshow(Edge_to_Node(path_batch[i], Edge_list, m,'cuda:0').cpu())
+      ax.imshow(Edge_to_Node(path_batch[i], Edge_list, m,'cuda:0').cpu(), cmap=cmap_str)
       ax.set_xticks([])
       ax.set_yticks([])
       save_str = './pred_path_plots/true_path_grid_'+str(grid_size)+'_img'+str(i)+'.pdf'

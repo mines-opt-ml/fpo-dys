@@ -94,18 +94,18 @@ def trainer(net, train_dataset, test_dataset, grid_size, WW, max_epochs,
             # print('epoch: ', epoch, 'test loss is ', test_loss)
             ## Evaluate accuracy
             if graph_type == 'E':
-                accuracy = Compute_Perfect_Path_Acc(path_pred, path_batch, Edge_list, grid_size, device)
-                regret = Regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
+                accuracy = compute_perfect_path_acc(path_pred, path_batch, Edge_list, grid_size, device)
+                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
             else:
-                accuracy = Compute_Perfect_Path_Acc_V(path_pred, path_batch)
-                regret = Regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
+                accuracy = compute_perfect_path_acc_V(path_pred, path_batch)
+                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
             # print('epoch: ', epoch, 'accuracy is ', accuracy)
             test_acc_hist.append(accuracy)
 
         # if test_loss < best_loss:
         #     best_params = net.state_dict()
         
-        print('epoch: ', epoch, '| ave_tr_loss: ', "{:5.2e}".format(train_loss_ave), '| te_loss: ', "{:5.2e}".format(test_loss), '| acc.: ', "{:<7f}".format(accuracy), '| lr: ', "{:5.2e}".format(optimizer.param_groups[0]['lr']), '| regret: ', "{:<5f}".format(regret), '| time: ', "{:<15f}".format(epoch_time))
+        print('epoch: ', epoch, '| ave_tr_loss: ', "{:5.2e}".format(train_loss_ave), '| te_loss: ', "{:5.2e}".format(test_loss), '| acc.: ', "{:<7f}".format(accuracy), '| lr: ', "{:5.2e}".format(optimizer.param_groups[0]['lr']), '| time: ', "{:<15f}".format(epoch_time))
             
             
 

@@ -107,7 +107,7 @@ def Compute_Perfect_Path_Acc_V(pred_batch, true_batch):
   return score/batch_size
 
 ## Utility for computing normalized regret 
-def Regret(WW,d_batch, true_batch, pred_batch, type, Edge_list, grid_size, device):
+def compute_regret(WW,d_batch, true_batch, pred_batch, type, Edge_list, grid_size, device):
   '''
   Computes the difference in length between predicted path and best path.
   '''
@@ -115,19 +115,16 @@ def Regret(WW,d_batch, true_batch, pred_batch, type, Edge_list, grid_size, devic
   true_weights = torch.transpose(torch.matmul(WW, torch.transpose(d_batch, 0, 1)), 0, 1)
   regret = 0.
   batch_size = pred_batch.shape[0]
+
+  # print('pred_batch.shape = ', pred_batch.shape)
   for i in range(batch_size):
     if type == "E":
       curr_map = Edge_to_Node(pred_batch[i,:], Edge_list, grid_size, device)
       true_map = Edge_to_Node(true_batch[i,:], Edge_list, grid_size, device)
       path_map = Greedy_Decoder(curr_map, grid_size).to(device)
     else:
-      path_map = pred_batch[i,:]
-      true_map = true_batch[i,:]
-      # plt.matshow(path_map.cpu().detach().numpy())
-      # plt.show()
-      # plt.matshow(true_map.cpu().detach().numpy())
-      # plt.show()
-
+      path_map = pred_batch[i,:]  
+      true_map = Edge_to_Node(true_batch[i,:], Edge_list, grid_size, device)
     
     length_shortest_path = torch.dot(true_map.view(grid_size**2), true_weights[i,:])
     difference = path_map - true_map
@@ -141,5 +138,3 @@ def Regret(WW,d_batch, true_batch, pred_batch, type, Edge_list, grid_size, devic
     else:
       regret += temp_regret/length_shortest_path
   return regret/batch_size
-    
-
