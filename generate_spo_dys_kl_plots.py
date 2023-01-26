@@ -65,6 +65,8 @@ grid_size_array = [5, 10, 20, 30, 50, 100]
 
 cmap_str = 'viridis'
 
+print("GENERATE PLOTS IN EVAL MODE")
+
 for grid_size in grid_size_array:
 
   print('\n\n ------------------------------ GRID SIZE ', str(grid_size), ' ------------------------------')
@@ -102,6 +104,8 @@ for grid_size in grid_size_array:
 
   DYS_net.load_state_dict(state_dict)
 
+  DYS_net.eval()
+
   path_batch =path_batch.to(device)
   path_pred_DYS = DYS_net(d_batch).detach()
 
@@ -117,6 +121,8 @@ for grid_size in grid_size_array:
   PertOpt_net.to('cpu')
 
   PertOpt_net.load_state_dict(state_dict)
+
+  PertOpt_net.eval()
 
   path_pred_PertOpt = PertOpt_net(d_batch.cpu()).detach()
 
@@ -135,6 +141,8 @@ for grid_size in grid_size_array:
     CVX_net.to(device)
 
     CVX_net.load_state_dict(state_dict)
+
+    CVX_net.eval()
 
     path_pred_CVX = CVX_net(d_batch).detach()
 

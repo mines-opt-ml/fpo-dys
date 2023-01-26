@@ -80,7 +80,7 @@ def Greedy_Decoder(node_map, m):
   return path_map
     
 
-def Compute_Perfect_Path_Acc(pred_batch, true_batch, Edge_list, grid_size, device):
+def compute_perfect_path_acc(pred_batch, true_batch, Edge_list, grid_size, device):
   '''
   Greedily decode Node map from Edge_to_Node. Compute accuracy.
   '''
@@ -95,7 +95,7 @@ def Compute_Perfect_Path_Acc(pred_batch, true_batch, Edge_list, grid_size, devic
   
   return score/batch_size
 
-def Compute_Perfect_Path_Acc_V(pred_batch, true_batch):
+def compute_perfect_path_acc_vertex(pred_batch, true_batch):
   score = 0.
   batch_size = pred_batch.shape[0]
   for i in range(batch_size):

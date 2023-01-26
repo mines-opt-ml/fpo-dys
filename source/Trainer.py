@@ -8,7 +8,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import time as time
 import torch.nn as nn
-from utils import Edge_to_Node, Compute_Perfect_Path_Acc, Compute_Perfect_Path_Acc_V, Regret
+from utils import Edge_to_Node, compute_perfect_path_acc, compute_perfect_path_acc_vertex, Regret
 import numpy
 
 def trainer(net, train_dataset, test_dataset, grid_size, WW, max_epochs,
@@ -53,10 +53,10 @@ def trainer(net, train_dataset, test_dataset, grid_size, WW, max_epochs,
         test_loss = criterion(path_batch, path_pred).item()
         test_loss_hist.append(test_loss)
         if graph_type == 'E':
-            accuracy = Compute_Perfect_Path_Acc(path_pred, path_batch, Edge_list, grid_size, device)
+            accuracy = compute_perfect_path_acc(path_pred, path_batch, Edge_list, grid_size, device)
             regret = Regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
         else:
-            accuracy = Compute_Perfect_Path_Acc_V(path_pred, path_batch)
+            accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
             regret = Regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
         # print('epoch: ', epoch, 'accuracy is ', accuracy)
         test_acc_hist.append(accuracy)
@@ -97,7 +97,7 @@ def trainer(net, train_dataset, test_dataset, grid_size, WW, max_epochs,
                 accuracy = compute_perfect_path_acc(path_pred, path_batch, Edge_list, grid_size, device)
                 # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
             else:
-                accuracy = compute_perfect_path_acc_V(path_pred, path_batch)
+                accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
                 # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
             # print('epoch: ', epoch, 'accuracy is ', accuracy)
             test_acc_hist.append(accuracy)
