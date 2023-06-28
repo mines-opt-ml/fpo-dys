@@ -3,8 +3,8 @@ import torch
 import networkx as nx
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 from torch.utils.data.dataset import random_split, Subset
-from source.torch_Dijkstra import Dijkstra
-from source.utils import Node_to_Edge
+from source.Shortest_Path.torch_Dijkstra import Dijkstra
+from source.Shortest_Path.utils import Node_to_Edge
 
 def create_shortest_path_data(m, train_size, test_size, context_size):
     '''

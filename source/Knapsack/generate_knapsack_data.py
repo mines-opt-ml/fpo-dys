@@ -10,7 +10,7 @@ def Gen_Knapsack_data(num_data = 10000, num_feat = 5, num_item = 20, num_knapsac
           + ' knapsacks and ' + str(num_item) + ' items')
     # split train test data
     weights_numpy, contexts_numpy, costs_numpy = pyepo.data.knapsack.genData(num_data, num_feat, num_item,
-                                                dim=num_knapsack, deg=2, noise_width= 0.001)#0.5)#, seed=135)
+                                                dim=num_knapsack, deg=2, noise_width= 0.05)#0.5)#, seed=135)
 
     d_train, d_test_val, w_train, w_test_val = train_test_split(contexts_numpy, costs_numpy, test_size=200)#, random_state=42)
     d_test, d_val, w_test, w_val = train_test_split(d_test_val, w_test_val, test_size=100)
