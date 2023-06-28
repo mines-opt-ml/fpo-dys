@@ -6,7 +6,7 @@ November 2022
 import numpy as np
 import torch
 import itertools
-import matplotlib.pyplot as plt
+import torch.nn as nn
 
 ## Small utility for rounding coordinates of points
 def RoundCoords(vertex_name):
@@ -138,3 +138,18 @@ def compute_regret(WW,d_batch, true_batch, pred_batch, type, Edge_list, grid_siz
     else:
       regret += temp_regret/length_shortest_path
   return regret/batch_size
+
+#### The following are utilities related to Regret loss.
+def RegretLoss(nn.Module):
+   def __init__(self, n, device):
+        super(RegretLoss, self).__init__()
+        self.device = device
+        self.n = n  # number of variables
+    
+    def forward(self, d, w_true, x_pred):
+      '''
+      d is (batch of) contexts, w_true is (batch of) true 
+      cost vectors.
+      '''
+      cost = torch.matmul(w_true.view(-1, self.n), x_pred)
+      return torch.mean(cost)
