@@ -1,0 +1,100 @@
+site_name: Faster Predict-Then-Optimize with Three-Operator Splitting
+site_description: Operator splitting can be used to design easy-to-train models for predict-and-optimize tasks, which scale effortlessly to problems with thousands of variables.
+
+extra_css:
+  - stylesheets/extra.css
+ 
+plugins:
+  - search
+  - mkdocstrings
+  - mkdocs-jupyter:
+      include_source: True
+      include: ["*.ipynb"]
+  - social:
+      cards_color:
+        fill: "#7086DF" 
+        text: "#FFFFFF"
+  
+theme:
+  name: material
+  logo: assets/logo-v3-light.png
+  favicon: assets/logo-v3-dark.png
+  palette:
+    scheme: default  
+  features:
+    - content.code.annotation
+    - content.code.copy
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.tracking
+    - toc.integrate
+    - navigation.top
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy  
+
+# Github Repo
+repo_name: mines-opt-ml/fpo-dys
+repo_url: https://github.com/mines-opt-ml/fpo-dys
+
+
+extra:
+  homepage: https://typal.academy
+  social:
+    - icon: fontawesome/brands/instagram
+      link: https://instagram.com/TypalAcademy  
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/TypalAcademy
+    - icon: fontawesome/brands/vimeo
+      link: https://vimeo.com/TypalAcademy    
+    - icon: fontawesome/brands/youtube
+      link: https://youtube.com/@TypalAcademy    
+  consent:
+    title: Cookie Consent
+    description: >- 
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they are searching for. Your consent helps make this site better.
+    cookies:
+
+
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.mark
+  - attr_list
+  - pymdownx.tasklist:
+      custom_checkbox: true  
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+    - 'FPO DYS': 'index.md'
+    - 'Experiments':
+        - 'Knapsack': 'knapsack.md'
+        - 'Shortest Path': 'shortest-path.md'
+
+copyright: |
+  &copy; 2023 <a href="https://research.typal.academy"  target="_blank" rel="noopener">Typal Academy LLC</a>
+  <br>
+  <a href="#__consent">Cookie Settings</a>
