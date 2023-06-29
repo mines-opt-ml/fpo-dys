@@ -16,4 +16,4 @@ _Faster Predict-then-Optimize with Three-Operator Splitting_ (**[arXiv Link](htt
       year={2023}
     }
 
-See [documentation site](https://spo-tos.research.typal.academy) for more details.
+See [documentation site](https://fpo-tos.research.typal.academy) for more details.
