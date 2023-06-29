@@ -57,7 +57,7 @@ class KnapSackNet(DYS_opt_net):
     #temp3 = cost_vec + 0.0005*z
     #temp4 = torch.cat([temp3, temp],dim=1)
     #print(temp4)
-    return  -cost_vec + 0.0005*z # tried up to 0.5
+    return  -cost_vec + 0.0005*z  # tried up to 0.5
 
   def data_space_forward(self, d):
     z = self.leaky_relu(self.fc_1(d))
@@ -67,8 +67,7 @@ class KnapSackNet(DYS_opt_net):
     # So, it makes sense to apply the final ReLU. Kept observing dead neuron problem.
     cost_vec = self.dropout(self.fc_3(z)) # self.relu(self.fc_3(z))
     # clamp to avoid "exploding cost vec" phenomenon
-    cost_vec = torch.clamp(cost_vec, -1, 1) 
-    # print(cost_vec[0:5,:])
+    # cost_vec = torch.clamp(cost_vec, -1, 1)
     # print('Norm of cost_vec is  ', torch.norm(cost_vec))
     ## NB: Now pad cost_vec with zeros, to account for dummy variables
     batch_size = d.shape[0]

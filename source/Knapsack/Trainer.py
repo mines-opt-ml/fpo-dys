@@ -31,7 +31,8 @@ def trainer(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsac
 
     optimizer = optim.Adam(net.parameters(), lr=learning_rate, weight_decay = 5e-4)
     if model_type == "DYS":
-        criterion = RegretLoss(num_item, num_knapsack, device=device)
+        criterion = nn.MSELoss()
+        regret = RegretLoss(num_item, num_knapsack, device=device)
     elif model_type == "Two-stage":
         criterion = nn.MSELoss()
         regret = RegretLoss(num_item, num_knapsack, device=device)
@@ -60,7 +61,9 @@ def trainer(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsac
     checkpt_path = './models/' + model_type + '/' 
 
      ## Compute initial validation loss
-    if model_type == "DYS" or model_type == "BBOpt" or model_type == "PertOpt":
+    if model_type == "DYS":
+        metric = regret # criterion
+    elif model_type == "BBOpt" or model_type == "PertOpt":
         metric = criterion
     else:
         metric = regret
@@ -109,7 +112,8 @@ def trainer(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsac
             optimizer.zero_grad()
             predicted = net(d_batch)
             if model_type == "DYS":
-                loss = criterion(w_batch, predicted[:,:-(num_knapsack + num_item)], opt_sol, opt_value)
+                loss = criterion(opt_sol, predicted[:,:-(num_knapsack + num_item)])
+                # loss = criterion(w_batch, predicted[:,:-(num_knapsack + num_item)], opt_sol, opt_value)
             elif model_type == "Two-stage":
                 loss = criterion(w_batch, predicted)
             elif model_type == "SPO+":
