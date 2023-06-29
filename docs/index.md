@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Docs](https://github.com/mines-opt-ml/fpo-dys/actions/workflows/ci.yml/badge.svg)
+![Docs](https://github.com/mines-opt-ml/fpo-tos/actions/workflows/ci.yml/badge.svg)
 
 :material-draw-pen: [Daniel McKenzie](https://danielmckenzie.github.io/), [Samy Wu Fung](https://swufung.github.io/), and [Howard Heaton](https://howardheaton.tech)
 
