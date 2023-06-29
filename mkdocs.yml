@@ -39,8 +39,8 @@ theme:
     - content.code.copy  
 
 # Github Repo
-repo_name: mines-opt-ml/fpo-dys
-repo_url: https://github.com/mines-opt-ml/fpo-dys
+repo_name: mines-opt-ml/fpo-tos
+repo_url: https://github.com/mines-opt-ml/fpo-tos
 
 
 extra:
