@@ -90,6 +90,9 @@ extra_javascript:
 
 nav:
     - 'FPO TOS': 'index.md'
+    - 'Experiments':
+        - 'Shortest Path': 'shortest-path.md'
+        - 'Knapsack': 'knapsack.md'
 
 copyright: |
   &copy; 2023 <a href="https://research.typal.academy"  target="_blank" rel="noopener">Typal Academy LLC</a>
