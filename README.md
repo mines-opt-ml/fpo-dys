@@ -5,7 +5,9 @@
 
 ## Associated Publication
 
-_Faster Predict-then-Optimize with Three-Operator Splitting_ (**[arXiv Link](https://arxiv.org/abs/2301.13395)**)
+_Faster Predict-then-Optimize_
+
+_with Three-Operator Splitting_ (**[arXiv Link](https://arxiv.org/abs/2301.13395)**)
 
 Please cite as
     
