@@ -7,11 +7,15 @@
     Operator splitting can be used to design easy-to-train models for predict-and-optimize tasks, which scale effortlessly to problems with thousands of variables.
 
 <center>
-
 [Contact Us](https://form.jotform.com/TypalAcademy/contact-form){ .md-button .md-button--primary }
+</center>
 
-<br>
+!!! success "Key Steps"
+    - [x] Split polytope constraints into nonnegativity and affine constraints
+    - [x] Evaluate model using three-operator splitting (with projections onto two constraint sets) for forward prop
+    - [x] Backprop using JFB
 
+<center>
 [Preprint :material-file-document-outline:](https://arxiv.org/abs/2301.13395){ .md-button .md-button--primary }
 </center>
 
