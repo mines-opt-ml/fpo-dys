@@ -90,7 +90,7 @@ extra_javascript:
 
 nav:
     - 'FPO TOS': 'index.md'
-    - 'DYS-Net': 'dys-net.md'
+    - 'TOS-Net': 'tos-net.md'
     - 'Experiments':
         - 'Shortest Path': 'shortest-path.md'
         - 'Knapsack': 'knapsack.md'
