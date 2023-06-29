@@ -17,7 +17,7 @@
 
 !!! quote "Citation"
     ```
-    @article{heaton2023fastere,
+    @article{mckenzie2023faster,
              title={{Faster Predict-and-Optimize with Three-Operator Splitting}},
              author={McKenzie, Daniel and Wu Fung, Samy and Heaton, Howard},
              journal={arXiv preprint arXiv:2301.13395},
