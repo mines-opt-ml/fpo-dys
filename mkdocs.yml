@@ -1,4 +1,4 @@
-site_name: Faster Predict-Then-Optimize with Three-Operator Splitting
+site_name: Faster Predict-Then-Optimize with Davis-Yin Splitting
 site_description: Operator splitting can be used to design easy-to-train models for predict-and-optimize tasks, which scale effortlessly to problems with thousands of variables.
 
 extra_css:
@@ -39,8 +39,8 @@ theme:
     - content.code.copy  
 
 # Github Repo
-repo_name: mines-opt-ml/fpo-tos
-repo_url: https://github.com/mines-opt-ml/fpo-tos
+repo_name: mines-opt-ml/fpo-dys
+repo_url: https://github.com/mines-opt-ml/fpo-dys
 
 
 extra:
@@ -89,8 +89,8 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
-    - 'FPO TOS': 'index.md'
-    - 'TOS-Net': 'tos-net.md'
+    - 'FPO-DYS': 'index.md'
+    - 'DYS-Net': 'dys-net.md'
     - 'Experiments':
         - 'Shortest Path': 'shortest-path.md'
         - 'Knapsack': 'knapsack.md'
