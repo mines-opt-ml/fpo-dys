@@ -32,7 +32,7 @@ def Compute_Test_Loss(net,loader, model_type, metric, num_knapsack, num_item, de
         opt_sol = opt_sol.to(device)
         opt_value = opt_value.to(device)
         predicted = net(d_batch)
-        if model_type == "DYS":
+        if model_type == "DYS" or model_type == "DYS-Regret":
             loss += metric(w_batch, predicted[:,:-(num_knapsack + num_item)], opt_sol, opt_value, eval_mode=True).item()
         else: 
             loss += metric(w_batch, predicted, opt_sol, opt_value, eval_mode=True).item()
