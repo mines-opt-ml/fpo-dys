@@ -48,12 +48,14 @@ extra:
   social:
     - icon: fontawesome/brands/instagram
       link: https://instagram.com/TypalAcademy  
+    - icon: fontawesome/brands/patreon
+      link: https://patreon.com/TypalAcademy         
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/TypalAcademy
     - icon: fontawesome/brands/vimeo
       link: https://vimeo.com/TypalAcademy    
     - icon: fontawesome/brands/youtube
-      link: https://youtube.com/@TypalAcademy    
+      link: https://youtube.com/@TypalAcademy     
   consent:
     title: Cookie Consent
     description: >- 
@@ -96,6 +98,6 @@ nav:
         - 'Knapsack': 'knapsack.md'
 
 copyright: |
-  &copy; 2023 <a href="https://research.typal.academy"  target="_blank" rel="noopener">Typal Academy LLC</a>
+  &copy; 2023 <a href="https://research.typal.academy"  target="_blank" rel="noopener">Typal Academy</a>
   <br>
   <a href="#__consent">Cookie Settings</a>
