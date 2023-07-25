@@ -9,7 +9,7 @@ from Trainer_x import trainer_x
 # Set the random seed
 seed = rand.randint(0, 512)
 
-def _initializer(knapsack_dict, knapsack_data_dict, model_type, device='mps'):
+def _initializer(knapsack_dict, knapsack_data_dict, model_type, device='cuda:0'):
     # unpack knapsack problem data
     num_knapsack = knapsack_data_dict['num_knapsack']
     num_item = knapsack_data_dict['num_item']
@@ -33,8 +33,8 @@ def _initializer(knapsack_dict, knapsack_data_dict, model_type, device='mps'):
     net.to(device)
     return net, num_item, num_knapsack
 
-def initialize_and_train(knapsack_dict, knapsack_data_dict, model_type, data_type, max_epochs, learning_rate=1e-3, device='mps'):
-    net, num_item, num_knapsack = _initializer(knapsack_dict, knapsack_data_dict, model_type, device='mps')
+def initialize_and_train(knapsack_dict, knapsack_data_dict, model_type, data_type, max_epochs, learning_rate=1e-3, device='cuda:0'):
+    net, num_item, num_knapsack = _initializer(knapsack_dict, knapsack_data_dict, model_type, device='cuda:0')
     dataset_train = knapsack_dict["dataset_train"]
     dataset_test = knapsack_dict["dataset_test"]
     dataset_val = knapsack_dict["dataset_val"]

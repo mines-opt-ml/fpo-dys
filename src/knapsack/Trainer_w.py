@@ -97,7 +97,7 @@ def trainer_w(net, train_dataset, test_dataset, val_dataset, num_item, num_knaps
                 loss = criterion(predicted, w_batch, opt_sol, opt_value).mean()
             elif model_type == "BBOpt":
                 x_predicted = dbb(predicted)
-                loss = criterion(opt_sol, x_predicted) # criterion(x_predicted, w_batch, opt_sol, opt_value)
+                loss = criterion(x_predicted, w_batch, opt_sol, opt_value)
             elif model_type == "PertOpt":
                 x_predicted = ptb(predicted)
                 loss = criterion(x_predicted, w_batch, opt_sol, opt_value)
@@ -114,7 +114,7 @@ def trainer_w(net, train_dataset, test_dataset, val_dataset, num_item, num_knaps
         epoch_time_hist.append(epoch_time)
 
         ## Now compute loss on validation set
-        val_loss = Compute_Test_Loss(net,loader_test, model_type, metric, num_knapsack, num_item, device)
+        val_loss = Compute_Test_Loss(net,loader_val, model_type, metric, num_knapsack, num_item, device)
 
         if val_loss < best_val_loss:
             state_save_name = checkpt_path+'best.pth'
@@ -123,6 +123,8 @@ def trainer_w(net, train_dataset, test_dataset, val_dataset, num_item, num_knaps
             # So, we compute test loss
             best_test_loss = Compute_Test_Loss(net,loader_test, model_type, metric, num_knapsack, num_item, device)
             time_till_best_val_loss = sum(epoch_time_hist)
+            best_val_loss = val_loss
+            print("Best validation loss achieved at epoch "+ str(epoch))
         
         # scheduler.step(val_loss)
         val_loss_hist.append(val_loss)
