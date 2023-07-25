@@ -18,7 +18,7 @@
     - [x] Backprop using JFB
 
 <center>
-[Preprint :material-file-document-outline:](https://arxiv.org/abs/2301.13395){ .md-button .md-button--primary }
+[Preprint :material-file-document-outline:](assets/fpo-dys-preprint.pdf){ .md-button .md-button--primary }
 </center>
 
 !!! abstract "Abstract"
