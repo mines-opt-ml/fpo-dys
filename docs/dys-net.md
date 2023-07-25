@@ -1,6 +1,4 @@
-# TOS Net
-
-_Overview of model and code coming soon._
+# DYS-Net
 
 ::: src.dYS_opt_net.DYS_opt_net
     options:

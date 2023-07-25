@@ -1,4 +1,4 @@
-site_name: Faster Predict-Then-Optimize with Three-Operator Splitting
+site_name: Faster Predict-Then-Optimize with Davis-Yin Splitting
 site_description: Operator splitting can be used to design easy-to-train models for predict-and-optimize tasks, which scale effortlessly to problems with thousands of variables.
 
 extra_css:
@@ -39,8 +39,8 @@ theme:
     - content.code.copy  
 
 # Github Repo
-repo_name: mines-opt-ml/fpo-tos
-repo_url: https://github.com/mines-opt-ml/fpo-tos
+repo_name: mines-opt-ml/fpo-dys
+repo_url: https://github.com/mines-opt-ml/fpo-dys
 
 
 extra:
@@ -48,12 +48,14 @@ extra:
   social:
     - icon: fontawesome/brands/instagram
       link: https://instagram.com/TypalAcademy  
+    - icon: fontawesome/brands/patreon
+      link: https://patreon.com/TypalAcademy         
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/TypalAcademy
     - icon: fontawesome/brands/vimeo
       link: https://vimeo.com/TypalAcademy    
     - icon: fontawesome/brands/youtube
-      link: https://youtube.com/@TypalAcademy    
+      link: https://youtube.com/@TypalAcademy     
   consent:
     title: Cookie Consent
     description: >- 
@@ -89,13 +91,13 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
-    - 'FPO TOS': 'index.md'
-    - 'TOS-Net': 'tos-net.md'
+    - 'FPO-DYS': 'index.md'
+    - 'DYS-Net': 'dys-net.md'
     - 'Experiments':
         - 'Shortest Path': 'shortest-path.md'
         - 'Knapsack': 'knapsack.md'
 
 copyright: |
-  &copy; 2023 <a href="https://research.typal.academy"  target="_blank" rel="noopener">Typal Academy LLC</a>
+  &copy; 2023 <a href="https://research.typal.academy"  target="_blank" rel="noopener">Typal Academy</a>
   <br>
   <a href="#__consent">Cookie Settings</a>

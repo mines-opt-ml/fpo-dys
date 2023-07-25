@@ -1,5 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Docs](https://github.com/mines-opt-ml/fpo-tos/actions/workflows/ci.yml/badge.svg)
+![Docs](https://github.com/mines-opt-ml/fpo-dys/actions/workflows/ci.yml/badge.svg)
+
+# FPO-DYS
 
 :material-draw-pen: [Daniel McKenzie](https://danielmckenzie.github.io/), [Samy Wu Fung](https://swufung.github.io/), and [Howard Heaton](https://howardheaton.tech)
 
@@ -16,7 +18,7 @@
     - [x] Backprop using JFB
 
 <center>
-[Preprint :material-file-document-outline:](https://arxiv.org/abs/2301.13395){ .md-button .md-button--primary }
+[Preprint :material-file-document-outline:](assets/fpo-dys-preprint.pdf){ .md-button .md-button--primary }
 </center>
 
 !!! abstract "Abstract"
