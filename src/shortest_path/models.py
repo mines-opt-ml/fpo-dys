@@ -4,22 +4,23 @@ import cvxpy as cp
 # import blackbox_backprop as bb 
 from cvxpylayers.torch import CvxpyLayer
 from abc import ABC, abstractmethod
-from knapsack.dYS_opt_net import DYS_opt_net
-from utils import Edge_to_Node
-from torch_Dijkstra import Dijkstra
-import perturbations
+from src.shortest_path.dYS_opt_net import DYS_opt_net
+from src.shortest_path.utils import Edge_to_Node
+from src.shortest_path.torch_Dijkstra import Dijkstra
+from src.shortest_path import perturbations
 
 
 
 ## Create NN using DYS layer. Look how easy it is!
 class ShortestPathNet(DYS_opt_net):
-  def __init__(self, A, b, num_vertices, num_edges, Edges, context_size):
+  def __init__(self, A, b, num_vertices, num_edges, Edges, context_size, device='cpu'):
     super(ShortestPathNet, self).__init__(A, b)
     self.context_size = context_size
     self.num_vertices = num_vertices
     self.num_edges = num_edges
     self.hidden_dim = 2*context_size
     self.Edges = Edges
+    self.device=device
 
     ## Compute geometric edge length multiplier
     # Edge_lengths = []
@@ -49,7 +50,7 @@ class ShortestPathNet(DYS_opt_net):
 
 ## Create NN using cvxpylayers
 class Cvx_ShortestPathNet(nn.Module):
-  def __init__(self, A, b, context_size, device='cuda:0'):
+  def __init__(self, A, b, context_size, device='cpu'):
     super().__init__()
     self.b = b.to(device)
     self.A = A.to(device)

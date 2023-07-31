@@ -8,11 +8,11 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import time as time
 import torch.nn as nn
-from utils import Edge_to_Node, compute_perfect_path_acc, compute_perfect_path_acc_vertex, Regret
+from src.shortest_path.utils import Edge_to_Node, compute_perfect_path_acc, compute_perfect_path_acc_vertex, compute_regret
 import numpy
 
-def trainer(net, train_dataset, test_dataset, grid_size, WW, max_epochs,
-            learning_rate, graph_type, Edge_list, device='cuda:0', max_time=3600, use_scheduler=True):
+def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
+            learning_rate, graph_type, Edge_list, device='cpu', max_time=3600, use_scheduler=True):
     '''
     Train network net using given parameters, for shortest path
     problem on a grid_size-by-grid_size grid graph.
@@ -54,10 +54,10 @@ def trainer(net, train_dataset, test_dataset, grid_size, WW, max_epochs,
         test_loss_hist.append(test_loss)
         if graph_type == 'E':
             accuracy = compute_perfect_path_acc(path_pred, path_batch, Edge_list, grid_size, device)
-            regret = Regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
+            # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
         else:
             accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
-            regret = Regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
+            # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
         # print('epoch: ', epoch, 'accuracy is ', accuracy)
         test_acc_hist.append(accuracy)
 

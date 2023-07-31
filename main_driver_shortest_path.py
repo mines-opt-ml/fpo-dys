@@ -1,24 +1,31 @@
-# Assume path is currently SPO-with-DYS
+# Assume path is root directory
 
 
-import sys
-sys.path.append('./source/') # append files from source folder
-
-import torch
-from GenerateShortestPathData import create_shortest_path_data
-from ModelsShortestPath import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
+# import sys
+# sys.path.append('./source/') # append files from source folder
+from src.shortest_path.utils import create_shortest_path_data
+from src.shortest_path.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
 import matplotlib.pyplot as plt
 import time as time
-from Trainer import trainer
+from src.shortest_path.trainer import trainer
 import numpy as np
+import torch
+import os
 
 ## Set device
 device = 'cuda:0'
+print('device: ', device)
 
 ## Some fixed hyperparameters
-max_epochs = 100
+max_epochs = 2
 init_lr = 1e-2 # initial learning rate. We're using a scheduler. 
 torch.manual_seed(0)
+
+# check that directory to save data exists 
+if not os.path.exists('./src/shortest_path/results/'):
+    os.makedirs('./src/shortest_path/results/')
+if not os.path.exists('./src/shortest_path/saved_weights/'):
+    os.makedirs('./src/shortest_path/saved_weights/')
 
 ## Some arrays
 tl_trained_DYS = [] # test loss
@@ -42,7 +49,10 @@ ta_trained_BB = []
 ne_trained_BB = []
 
 # Define Grid array for all models to solve
-grid_size_array = [5,10,20,30, 50, 100]
+# grid_size_array = [5,10,20,30, 50, 100]
+grid_size_array = [5,10,20,30]
+
+base_data_path = './src/shortest_path/shortest_path_data/'
 
 # -----------------------------------------------------------
 # ------------------------ Train DYS ------------------------
@@ -51,7 +61,7 @@ grid_size_array = [5,10,20,30, 50, 100]
 for grid_size in grid_size_array:
 
   ## Load data
-  data_path = './shortest_path_data/Shortest_Path_training_data'+str(grid_size)+'.pth'
+  data_path = base_data_path + 'Shortest_Path_training_data'+str(grid_size)+'.pth'
   state = torch.load(data_path)
 
   ## Extract data from state
@@ -66,16 +76,19 @@ for grid_size in grid_size_array:
   Edge_list = state["Edge_list"]
   Edge_list_torch = torch.tensor(Edge_list)
 
+  A = A.to(device)
+  b = b.to(device)
+
   ## Load model/network
   DYS_net = ShortestPathNet(A, b, num_vertices = grid_size**2, num_edges = num_edges ,
-                    Edges = Edge_list_torch.to(device), context_size = 5)
+                    Edges = Edge_list_torch.to(device), context_size = 5, device=device)
   DYS_net.to(device)
 
   # Train
-  print('\n-------------------------------------------- TRAINING DYS GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
+  print('\n--------------------------------- ----------- TRAINING DYS GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
   start_time = time.time()
   tl_DYS, tt_DYS, ta_DYS = trainer(DYS_net, train_dataset_e, test_dataset_e, grid_size,
-                                  max_epochs, init_lr, graph_type='E', Edge_list = Edge_list, max_time=np.inf)
+                                  max_epochs, init_lr, graph_type='E', Edge_list = Edge_list, max_time=np.inf, device=device)
   end_time = time.time()
   print('\n time to train DYS GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
@@ -95,10 +108,10 @@ for grid_size in grid_size_array:
             }
 
   # Save weights
-  torch.save(DYS_net.state_dict(), './models/'+'DYS_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+  torch.save(DYS_net.state_dict(), './src/shortest_path/saved_models/'+'DYS_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
   ## Save Histories
-  torch.save(state, './results/'+'DYS_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+  torch.save(state, './src/shortest_path/results/'+'DYS_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
 # -----------------------------------------------------------
 # ------------------------ Train CVX ------------------------
@@ -107,7 +120,7 @@ for grid_size in grid_size_array:
 for grid_size in grid_size_array:
 
   ## Load data
-  data_path = './shortest_path_data/Shortest_Path_training_data'+str(grid_size)+'.pth'
+  data_path = base_data_path + 'Shortest_Path_training_data'+str(grid_size)+'.pth'
   state = torch.load(data_path)
 
   ## Extract data from state
@@ -123,17 +136,14 @@ for grid_size in grid_size_array:
   Edge_list_torch = torch.tensor(Edge_list)
     
   ## Load model/network
-  CVX_net = Cvx_ShortestPathNet(A.float(), b.float(), 5)
+  CVX_net = Cvx_ShortestPathNet(A.float(), b.float(), 5, device=device)
   CVX_net.to(device)
 
   # Train
   print('\n-------------------------------------------- TRAINING CVX GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
   start_time = time.time()
-  try:
-      tl_CVX, tt_CVX, ta_CVX = trainer(CVX_net, train_dataset_e, test_dataset_e, grid_size,
-                            max_epochs, init_lr, graph_type='E', Edge_list = Edge_list, max_time=np.inf)
-  except:
-      print('CVX-Net failed to train!')
+  tl_CVX, tt_CVX, ta_CVX = trainer(CVX_net, train_dataset_e, test_dataset_e, grid_size,
+                          max_epochs, init_lr, graph_type='E', Edge_list = Edge_list, max_time=np.inf, device=device)
   end_time = time.time()
   print('\n time to train CVX GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
@@ -153,10 +163,10 @@ for grid_size in grid_size_array:
             }
 
   ## Save weights
-  torch.save(CVX_net.state_dict(), './models/'+'CVX_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+  torch.save(CVX_net.state_dict(), './src/shortest_path/saved_weights/'+'CVX_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
   ## Save Histories
-  torch.save(state, './results/'+'CVX_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+  torch.save(state, './src/shortest_path/results/'+'CVX_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
 # ---------------------------------------------------------------
 # ------------------------ Train PertOpt ------------------------
@@ -164,7 +174,7 @@ for grid_size in grid_size_array:
 for grid_size in grid_size_array:
 
   ## Load data
-  data_path = './shortest_path_data/Shortest_Path_training_data'+str(grid_size)+'.pth'
+  data_path = base_data_path + 'Shortest_Path_training_data'+str(grid_size)+'.pth'
   state = torch.load(data_path)
 
   ## Extract data from state
@@ -208,8 +218,8 @@ for grid_size in grid_size_array:
             }
 
   ## Save weights
-  torch.save(PertOpt_net.state_dict(), './models/'+'PertOpt_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+  torch.save(PertOpt_net.state_dict(), './src/shortest_path/saved_weights/'+'PertOpt_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
   ## Save Histories
-  torch.save(state, './results/'+'PertOpt_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+  torch.save(state, './src/shortest_path/results/'+'PertOpt_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 

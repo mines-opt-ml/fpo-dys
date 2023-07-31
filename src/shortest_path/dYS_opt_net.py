@@ -13,22 +13,22 @@ import torch.nn as nn
 from abc import ABC, abstractmethod
 
 class DYS_opt_net(nn.Module, ABC):
-    def __init__(self, A, b, alpha=0.05, device='cuda:0'):
+    def __init__(self, A, b, alpha=0.05):
         super().__init__()
         # self.b = b.to(device) # assumes b has shape n (not nx1)
-        self.b = b.to(device)
-        self.alpha = alpha*torch.ones(1, device=device)
-        self.A = A.to(device)
+        self.device = b.device
+        self.b = b
+        self.alpha = alpha*torch.ones(1, device=self.device)
+        self.A = A
         # self.A = self.A.cuda()
         # self.A = A
         self.n1 = A.shape[0]  # Number of rows of A
         self.n2 = A.shape[1]  # Number of columns of A
-        self.device = device
 
         U, s, VT = torch.linalg.svd(self.A, full_matrices=False)
-        self.s_inv = torch.tensor([1/sing if sing >=1e-6 else 0 for sing in s]).to(device)
-        self.V = torch.t(VT).to(device)
-        self.UT = torch.t(U).to(device)
+        self.s_inv = torch.tensor([1/sing if sing >=1e-6 else 0 for sing in s]).to(self.device)
+        self.V = torch.t(VT).to(self.device)
+        self.UT = torch.t(U).to(self.device)
 
     def project_C1(self, x):
         '''
