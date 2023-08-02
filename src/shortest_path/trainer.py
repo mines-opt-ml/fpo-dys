@@ -58,7 +58,6 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
         else:
             accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
             # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
-        # print('epoch: ', epoch, 'accuracy is ', accuracy)
         test_acc_hist.append(accuracy)
 
     ## Train!
@@ -101,9 +100,6 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
                 # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
             # print('epoch: ', epoch, 'accuracy is ', accuracy)
             test_acc_hist.append(accuracy)
-
-        # if test_loss < best_loss:
-        #     best_params = net.state_dict()
         
         print('epoch: ', epoch, '| ave_tr_loss: ', "{:5.2e}".format(train_loss_ave), '| te_loss: ', "{:5.2e}".format(test_loss), '| acc.: ', "{:<7f}".format(accuracy), '| lr: ', "{:5.2e}".format(optimizer.param_groups[0]['lr']), '| time: ', "{:<15f}".format(epoch_time))
             
