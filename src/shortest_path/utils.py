@@ -14,12 +14,12 @@ from torch.utils.data.dataset import random_split, Subset
 from src.shortest_path.torch_Dijkstra import Dijkstra
 
 ## Small utility for rounding coordinates of points
-def RoundCoords(vertex_name):
+def round_coordinates(vertex_name):
   vertex_coord = [int(vertex_name[0]), int(vertex_name[1])]
   return vertex_coord
 
 ## Utility for converting path in edge list format to node list format
-def Edge_to_Node(path, Edge_list, m, device):
+def edge_to_node(path, Edge_list, m, device):
   node_map = torch.zeros((m,m), device=device)
   node_map[0,0] = 1.
   node_map[-1,-1] = 1.
@@ -28,14 +28,14 @@ def Edge_to_Node(path, Edge_list, m, device):
     if edge_val > 0:
       edge_name = Edge_list[edge_num]
       path_list.append(edge_name)
-      node_0 = RoundCoords(edge_name[0])
-      node_1 = RoundCoords(edge_name[1])
+      node_0 = round_coordinates(edge_name[0])
+      node_1 = round_coordinates(edge_name[1])
       node_map[node_0[0], node_0[1]] += edge_val
       node_map[node_1[0], node_1[1]] += edge_val
   return node_map/2
 
 ## Utility for converting path in vertex format to edge list format
-def Node_to_Edge(path, Edge_list):
+def node_to_edge(path, Edge_list):
     num_edges = len(Edge_list)
     path_e = np.zeros(num_edges)
     row_inds, col_inds = np.nonzero(path)
@@ -61,7 +61,7 @@ def Next_Vertices(curr_vertex, prev_vertex, m):
 ## Utility for computing the fraction of inferences for which the predicted
 # path is optimal.
 
-def Greedy_Decoder(node_map, m):
+def greedy_decoder(node_map, m):
   curr_vertex = (0,0)
   prev_vertex = (-1, -1)
   path_map = torch.zeros(node_map.shape)
@@ -92,9 +92,9 @@ def compute_perfect_path_acc(pred_batch, true_batch, Edge_list, grid_size, devic
   score = 0.
   batch_size = pred_batch.shape[0]
   for i in range(batch_size):
-    curr_map = Edge_to_Node(pred_batch[i,:], Edge_list, grid_size, device)
-    true_map = Edge_to_Node(true_batch[i,:], Edge_list, grid_size, device)
-    path_map = Greedy_Decoder(curr_map, grid_size).to(device)
+    curr_map = edge_to_node(pred_batch[i,:], Edge_list, grid_size, device)
+    true_map = edge_to_node(true_batch[i,:], Edge_list, grid_size, device)
+    path_map = greedy_decoder(curr_map, grid_size).to(device)
     if torch.linalg.norm(path_map - true_map) < 0.001:
       score += 1.
   
@@ -124,12 +124,12 @@ def compute_regret(WW,d_batch, true_batch, pred_batch, type, Edge_list, grid_siz
   # print('pred_batch.shape = ', pred_batch.shape)
   for i in range(batch_size):
     if type == "E":
-      curr_map = Edge_to_Node(pred_batch[i,:], Edge_list, grid_size, device)
-      true_map = Edge_to_Node(true_batch[i,:], Edge_list, grid_size, device)
-      path_map = Greedy_Decoder(curr_map, grid_size).to(device)
+      curr_map = edge_to_node(pred_batch[i,:], Edge_list, grid_size, device)
+      true_map = edge_to_node(true_batch[i,:], Edge_list, grid_size, device)
+      path_map = greedy_decoder(curr_map, grid_size).to(device)
     else:
       path_map = pred_batch[i,:]  
-      true_map = Edge_to_Node(true_batch[i,:], Edge_list, grid_size, device)
+      true_map = edge_to_node(true_batch[i,:], Edge_list, grid_size, device)
     
     length_shortest_path = torch.dot(true_map.view(grid_size**2), true_weights[i,:])
     difference = path_map - true_map

@@ -1,8 +1,5 @@
 # Assume path is root directory
 
-
-# import sys
-# sys.path.append('./source/') # append files from source folder
 from src.shortest_path.utils import create_shortest_path_data
 from src.shortest_path.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
 import matplotlib.pyplot as plt
@@ -69,6 +66,7 @@ for grid_size in grid_size_array:
   test_dataset_e = state['test_dataset_e']
   train_dataset_v = state['train_dataset_v']
   test_dataset_v = state['test_dataset_v']
+
   m = state["m"]
   A = state["A"].float()
   b = state["b"].float()
@@ -223,3 +221,60 @@ for grid_size in grid_size_array:
   ## Save Histories
   torch.save(state, './src/shortest_path/results/'+'PertOpt_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
+
+
+
+# ---------------------------------------------------------------
+# ------------------------ Train BB ------------------------
+# ---------------------------------------------------------------
+for grid_size in grid_size_array:
+
+  ## Load data
+  data_path = base_data_path + 'Shortest_Path_training_data'+str(grid_size)+'.pth'
+  state = torch.load(data_path)
+
+  ## Extract data from state
+  train_dataset_e = state['train_dataset_e']
+  test_dataset_e = state['test_dataset_e']
+  train_dataset_v = state['train_dataset_v']
+  test_dataset_v = state['test_dataset_v']
+  m = state["m"]
+  A = state["A"].float()
+  b = state["b"].float()
+  num_edges = state["num_edges"]
+  Edge_list = state["Edge_list"]
+  Edge_list_torch = torch.tensor(Edge_list)
+    
+  BB_net = BB_ShortestPathNet(grid_size, context_size=5, device=device)
+  BB_net.to(device)
+
+  # Train
+  print('\n-------------------------------------------- TRAINING BB GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
+  start_time = time.time()
+  tl_BB, tt_BB, ta_BB = trainer(BB_net, train_dataset_v,
+                                              test_dataset_v, grid_size, max_epochs,
+                                              init_lr, graph_type='V', Edge_list = Edge_list,
+                                              device=device, max_time=np.inf, use_scheduler=False, use_blackbox_backprop=True)
+  end_time = time.time()
+  print('\n time to train BB GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
+
+  ## Store data
+  tl_trained_BB = tl_BB
+  tt_trained_BB = tt_BB
+  ta_trained_BB = ta_BB
+
+  print('length tl_trained_BB = ', len(tl_trained_BB))
+  print('length tt_trained_BB = ', len(tt_trained_BB))
+  print('length ta_trained_BB = ', len(ta_trained_BB))
+  
+  state = {
+            'tl_trained_BB': tl_trained_BB,
+            'tt_trained_BB': tt_trained_BB,
+            'ta_trained_BB': ta_trained_BB,
+            }
+
+  ## Save weights
+  torch.save(BB_net.state_dict(), './src/shortest_path/saved_weights/'+'BB_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+
+  ## Save Histories
+  torch.save(state, './src/shortest_path/results/'+'BB_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')

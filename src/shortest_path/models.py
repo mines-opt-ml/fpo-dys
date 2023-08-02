@@ -5,7 +5,6 @@ import cvxpy as cp
 from cvxpylayers.torch import CvxpyLayer
 from abc import ABC, abstractmethod
 from src.shortest_path.dYS_opt_net import DYS_opt_net
-from src.shortest_path.utils import Edge_to_Node
 from src.shortest_path.torch_Dijkstra import Dijkstra
 from src.shortest_path import perturbations
 

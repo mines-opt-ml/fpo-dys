@@ -8,11 +8,11 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import time as time
 import torch.nn as nn
-from src.shortest_path.utils import Edge_to_Node, compute_perfect_path_acc, compute_perfect_path_acc_vertex, compute_regret
+from src.shortest_path.utils import compute_perfect_path_acc, compute_perfect_path_acc_vertex
 import numpy
 
 def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
-            learning_rate, graph_type, Edge_list, device='cpu', max_time=3600, use_scheduler=True):
+            learning_rate, graph_type, edge_list, device='cpu', max_time=3600, use_scheduler=True, test_size=200):
     '''
     Train network net using given parameters, for shortest path
     problem on a grid_size-by-grid_size grid graph.
@@ -21,7 +21,6 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
     '''
 
     ## Training setup
-    test_size = 200
     train_loader = DataLoader(dataset=train_dataset, batch_size=200,
                                   shuffle=True)
     test_loader = DataLoader(dataset=test_dataset, batch_size=test_size,
@@ -53,11 +52,11 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
         test_loss = criterion(path_batch, path_pred).item()
         test_loss_hist.append(test_loss)
         if graph_type == 'E':
-            accuracy = compute_perfect_path_acc(path_pred, path_batch, Edge_list, grid_size, device)
-            # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
+            accuracy = compute_perfect_path_acc(path_pred, path_batch, edge_list, grid_size, device)
+            # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', edge_list, grid_size, device)
         else:
             accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
-            # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
+            # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', edge_list, grid_size, device)
         test_acc_hist.append(accuracy)
 
     ## Train!
@@ -93,11 +92,11 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
             # print('epoch: ', epoch, 'test loss is ', test_loss)
             ## Evaluate accuracy
             if graph_type == 'E':
-                accuracy = compute_perfect_path_acc(path_pred, path_batch, Edge_list, grid_size, device)
-                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', Edge_list, grid_size, device)
+                accuracy = compute_perfect_path_acc(path_pred, path_batch, edge_list, grid_size, device)
+                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', edge_list, grid_size, device)
             else:
                 accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
-                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', Edge_list, grid_size, device)
+                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', edge_list, grid_size, device)
             # print('epoch: ', epoch, 'accuracy is ', accuracy)
             test_acc_hist.append(accuracy)
         
