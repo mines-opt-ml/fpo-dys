@@ -2,9 +2,9 @@ import numpy as np
 import numpy.random as rand
 import torch
 import time as time
-from ModelsKnapSack import KnapSackNet, ValPredictNet
-from Trainer_w import trainer_w
-from Trainer_x import trainer_x
+from src.knapsack.models import KnapSackNet, ValPredictNet
+from src.knapsack.trainer_w import Trainer_w
+from src.knapsack.trainer_x import Trainer_x
 
 # Set the random seed
 seed = rand.randint(0, 512)
@@ -33,19 +33,17 @@ def _initializer(knapsack_dict, knapsack_data_dict, model_type, device='cuda:0')
     net.to(device)
     return net, num_item, num_knapsack
 
-def initialize_and_train(knapsack_dict, knapsack_data_dict, model_type, data_type, max_epochs, learning_rate=1e-3, device='cuda:0'):
-    net, num_item, num_knapsack = _initializer(knapsack_dict, knapsack_data_dict, model_type, device='cuda:0')
+def Initialize_and_train(knapsack_dict, knapsack_data_dict, model_type, data_type, max_epochs, learning_rate=1e-3, device='cuda:0'):
+    net, num_item, num_knapsack = _initializer(knapsack_dict, knapsack_data_dict, model_type, device=device)
     dataset_train = knapsack_dict["dataset_train"]
     dataset_test = knapsack_dict["dataset_test"]
     dataset_val = knapsack_dict["dataset_val"]
-    #if model_type == "Two-stage":
-    #    max_epochs = 2*max_epochs
     
     print('\n Currently training ' + model_type + '\n')
     if data_type == "x":
-        test_loss_hist, epoch_time_hist, best_test_loss, time_till_best_test_loss = trainer_x(net, dataset_train, dataset_test, dataset_val, num_item, num_knapsack, max_epochs, learning_rate, model_type = model_type, device=device)
+        test_loss_hist, epoch_time_hist, best_test_loss, time_till_best_test_loss = Trainer_x(net, dataset_train, dataset_test, dataset_val, num_item, num_knapsack, max_epochs, learning_rate, model_type = model_type, device=device)
     elif data_type == "w":
-        test_loss_hist, epoch_time_hist, best_test_loss, time_till_best_test_loss = trainer_w(net, dataset_train, dataset_test, dataset_val, num_item, num_knapsack, max_epochs, learning_rate, model_type = model_type, device=device)
+        test_loss_hist, epoch_time_hist, best_test_loss, time_till_best_test_loss = Trainer_w(net, dataset_train, dataset_test, dataset_val, num_item, num_knapsack, max_epochs, learning_rate, model_type = model_type, device=device)
     else:
         TypeError('Please choose a supported data type!')
     return np.sum(epoch_time_hist), best_test_loss, time_till_best_test_loss

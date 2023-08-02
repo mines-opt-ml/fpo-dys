@@ -8,10 +8,10 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import time as time
 import torch.nn as nn
-from knapsack_utils import RegretLoss, Compute_Test_Loss
+from src.knapsack.knapsack_utils import RegretLoss, Compute_Test_Loss
 import pyepo
 
-def trainer_w(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsack, max_epochs,
+def Trainer_w(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsack, max_epochs,
             learning_rate, model_type, device='cuda:0'):
     '''
     Train network net using given parameters, for shortest path

@@ -12,11 +12,12 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import time as time
 import torch.nn as nn
-from knapsack_utils import RegretLoss, Compute_Test_Loss
+from src.knapsack.knapsack_utils import RegretLoss, Compute_Test_Loss
 import pyepo
 import numpy as np
+import os
 
-def trainer_x(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsack, max_epochs,
+def Trainer_x(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsack, max_epochs,
             learning_rate, model_type, device='cuda:0'):
     '''
     Train network net using given parameters, for shortest path
@@ -57,7 +58,9 @@ def trainer_x(net, train_dataset, test_dataset, val_dataset, num_item, num_knaps
     val_loss_hist= []
     epoch_time_hist = []
     max_time = 1200
-    checkpt_path = './models/' + model_type + '/' 
+    checkpt_path = './src/knapsack/saved_weights/' + model_type + '/' 
+    if not os.path.exists(checkpt_path):
+        os.makedirs(checkpt_path)
 
      ## Compute initial validation loss
     # if model_type == "DYS":
