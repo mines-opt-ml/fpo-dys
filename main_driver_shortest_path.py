@@ -108,7 +108,7 @@ for grid_size in grid_size_array:
             }
 
   # Save weights
-  torch.save(DYS_net.state_dict(), './src/shortest_path/saved_models/'+'DYS_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+  torch.save(DYS_net.state_dict(), './src/shortest_path/saved_weights/'+'DYS_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
   ## Save Histories
   torch.save(state, './src/shortest_path/results/'+'DYS_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
