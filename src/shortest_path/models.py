@@ -46,7 +46,7 @@ class ShortestPathNet(DYS_opt_net):
   def data_space_forward(self, d):
     z = self.leaky_relu(self.fc_1(d))
     cost_vec = self.fc_2(z)
-    return cost_vec
+    return cost_vec # size = num_edges
 
 ## Create NN using cvxpylayers
 class Cvx_ShortestPathNet(nn.Module):
