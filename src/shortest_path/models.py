@@ -4,7 +4,7 @@ import cvxpy as cp
 # import blackbox_backprop as bb 
 from cvxpylayers.torch import CvxpyLayer
 from abc import ABC, abstractmethod
-from src.shortest_path.dYS_opt_net import DYS_opt_net
+from src.dYS_opt_net import DYS_opt_net
 from src.shortest_path.torch_Dijkstra import Dijkstra
 from src.shortest_path import perturbations
 

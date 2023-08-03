@@ -8,7 +8,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import time as time
 import torch.nn as nn
-from src.shortest_path.utils import compute_perfect_path_acc, compute_perfect_path_acc_vertex
+from src.utils import compute_perfect_path_acc, compute_perfect_path_acc_vertex
 import numpy
 
 def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
