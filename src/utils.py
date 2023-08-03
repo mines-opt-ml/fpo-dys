@@ -34,18 +34,46 @@ def edge_to_node(path, edge_list, m, device):
       node_map[node_1[0], node_1[1]] += edge_val
   return node_map/2
 
-## Utility for converting path in vertex format to edge list format
-def node_to_edge(path, edge_list):
-    num_edges = len(edge_list)
-    path_e = np.zeros(num_edges)
-    row_inds, col_inds = np.nonzero(path)
-    for i in range(len(row_inds)-1):
-        edge = ((row_inds[i]+0.5, col_inds[i]+0.5), (row_inds[i+1]+0.5, col_inds[i+1]+0.5))
-        try:
-          path_e[edge_list.index(edge)] = 1.
-        except:
-          print(path)
-    return path_e
+# ## Utility for converting path in vertex format to edge list format (BUGGY DOES NOT WORK)
+# def node_to_edge(path, edge_list):
+#     num_edges = len(edge_list)
+#     path_e = np.zeros(num_edges)
+#     row_inds, col_inds = np.nonzero(path)
+#     for i in range(len(row_inds)-1):
+#         edge = ((row_inds[i]+0.5, col_inds[i]+0.5), (row_inds[i+1]+0.5, col_inds[i+1]+0.5))
+#         try:
+#           path_e[edge_list.index(edge)] = 1.
+#         except:
+#           print('error!')
+#           print(path)
+#     return path_e
+
+def node_to_edge(paths, edge_list):
+  # converts paths to edges
+  # assumes paths is shape (batch_size, m, m)
+  # assumes edge_list is list of edges
+  dijkstra = Dijkstra(euclidean_weight=True,four_neighbors=False)
+
+  edge_paths = torch.zeros(paths.shape[0], len(edge_list))
+
+  num_edges = len(edge_list)
+  batch_size = paths.shape[0]
+  temp_costs = 2 - paths.numpy()
+
+  for i in range(batch_size):
+    path_v, path_e = dijkstra.run_single(temp_costs[i,:,:],Gen_Data=True)
+    path_e.reverse() # reverse list as output starts from bottom right corner
+    
+  # encode edge description of shortest path as a vector
+  path_vec_e = torch.zeros(len(edge_list))
+  for i in range(len(path_e)-1):
+    path_vec_e[edge_list.index((path_e[i], path_e[i+1]))] = 1
+
+    assert path_vec_e.shape == edge_paths[i,:].shape
+    edge_paths[i,:] = path_vec_e
+
+  return edge_paths
+
 
 def get_neighboring_vertices(curr_vertex, prev_vertex, m):
   neighbors = []
