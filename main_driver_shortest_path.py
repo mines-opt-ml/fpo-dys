@@ -1,6 +1,6 @@
 # Assume path is root directory
 
-from src.shortest_path.utils import create_shortest_path_data
+from src.utils import create_shortest_path_data
 from src.shortest_path.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
 import matplotlib.pyplot as plt
 import time as time
@@ -47,7 +47,7 @@ ne_trained_BB = []
 
 # Define Grid array for all models to solve
 # grid_size_array = [5,10,20,30, 50, 100]
-grid_size_array = [5,10,20,30]
+grid_size_array = [5,10]
 
 base_data_path = './src/shortest_path/shortest_path_data/'
 
