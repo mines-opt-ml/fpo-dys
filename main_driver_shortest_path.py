@@ -1,7 +1,6 @@
 # Assume path is root directory
 
-from src.utils import create_shortest_path_data
-from src.shortest_path.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
+from src.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
 import matplotlib.pyplot as plt
 import time as time
 from src.shortest_path.trainer import trainer
@@ -67,26 +66,26 @@ for grid_size in grid_size_array:
   train_dataset_v = state['train_dataset_v']
   test_dataset_v = state['test_dataset_v']
 
-  m = state["m"]
+  m= state["m"]
   A = state["A"].float()
   b = state["b"].float()
   num_edges = state["num_edges"]
-  Edge_list = state["Edge_list"]
-  Edge_list_torch = torch.tensor(Edge_list)
+  edge_list = state["Edge_list"]
+  edge_list_torch = torch.tensor(edge_list)
 
   A = A.to(device)
   b = b.to(device)
 
   ## Load model/network
   DYS_net = ShortestPathNet(A, b, num_vertices = grid_size**2, num_edges = num_edges ,
-                    Edges = Edge_list_torch.to(device), context_size = 5, device=device)
+                    Edges = edge_list_torch.to(device), context_size = 5, device=device)
   DYS_net.to(device)
 
   # Train
   print('\n--------------------------------- ----------- TRAINING DYS GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
   start_time = time.time()
   tl_DYS, tt_DYS, ta_DYS = trainer(DYS_net, train_dataset_e, test_dataset_e, grid_size,
-                                  max_epochs, init_lr, graph_type='E', Edge_list = Edge_list, max_time=np.inf, device=device)
+                                  max_epochs, init_lr, graph_type='E', edge_list = edge_list, max_time=np.inf, device=device)
   end_time = time.time()
   print('\n time to train DYS GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
@@ -130,8 +129,8 @@ for grid_size in grid_size_array:
   A = state["A"].float()
   b = state["b"].float()
   num_edges = state["num_edges"]
-  Edge_list = state["Edge_list"]
-  Edge_list_torch = torch.tensor(Edge_list)
+  edge_list = state["Edge_list"]
+  edge_list_torch = torch.tensor(edge_list)
     
   ## Load model/network
   CVX_net = Cvx_ShortestPathNet(A.float(), b.float(), 5, device=device)
@@ -141,7 +140,7 @@ for grid_size in grid_size_array:
   print('\n-------------------------------------------- TRAINING CVX GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
   start_time = time.time()
   tl_CVX, tt_CVX, ta_CVX = trainer(CVX_net, train_dataset_e, test_dataset_e, grid_size,
-                          max_epochs, init_lr, graph_type='E', Edge_list = Edge_list, max_time=np.inf, device=device)
+                          max_epochs, init_lr, graph_type='E', edge_list = edge_list, max_time=np.inf, device=device)
   end_time = time.time()
   print('\n time to train CVX GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
@@ -184,8 +183,8 @@ for grid_size in grid_size_array:
   A = state["A"].float()
   b = state["b"].float()
   num_edges = state["num_edges"]
-  Edge_list = state["Edge_list"]
-  Edge_list_torch = torch.tensor(Edge_list)
+  edge_list = state["Edge_list"]
+  edge_list_torch = torch.tensor(edge_list)
     
   PertOpt_net = Pert_ShortestPathNet(grid_size, context_size=5, device='cpu') # PertOpt not GPU Compatible
   PertOpt_net.to('cpu')
@@ -195,7 +194,7 @@ for grid_size in grid_size_array:
   start_time = time.time()
   tl_PertOpt, tt_PertOpt, ta_PertOpt = trainer(PertOpt_net, train_dataset_v,
                                               test_dataset_v, grid_size, max_epochs,
-                                              init_lr, graph_type='V', Edge_list = Edge_list,
+                                              init_lr, graph_type='V', edge_list = edge_list,
                                               device='cpu', max_time=np.inf, use_scheduler=False) # note PertOpt is not GPU compatible
   end_time = time.time()
   print('\n time to train PertOpt GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
@@ -205,9 +204,9 @@ for grid_size in grid_size_array:
   tt_trained_PertOpt = tt_PertOpt
   ta_trained_PertOpt = ta_PertOpt
 
-  print('length tl_trained_DYS = ', len(tl_trained_PertOpt))
-  print('length tt_trained_DYS = ', len(tt_trained_PertOpt))
-  print('length ta_trained_DYS = ', len(ta_trained_PertOpt))
+  print('length tl_trained_PertOpt = ', len(tl_trained_PertOpt))
+  print('length tt_trained_PertOpt = ', len(tt_trained_PertOpt))
+  print('length ta_trained_PertOpt = ', len(ta_trained_PertOpt))
   
   state = {
             'tl_trained_PertOpt': tl_trained_PertOpt,
@@ -242,8 +241,8 @@ for grid_size in grid_size_array:
   A = state["A"].float()
   b = state["b"].float()
   num_edges = state["num_edges"]
-  Edge_list = state["Edge_list"]
-  Edge_list_torch = torch.tensor(Edge_list)
+  edge_list = state["Edge_list"]
+  edge_list_torch = torch.tensor(edge_list)
     
   BB_net = BB_ShortestPathNet(grid_size, context_size=5, device=device)
   BB_net.to(device)
@@ -253,7 +252,7 @@ for grid_size in grid_size_array:
   start_time = time.time()
   tl_BB, tt_BB, ta_BB = trainer(BB_net, train_dataset_v,
                                               test_dataset_v, grid_size, max_epochs,
-                                              init_lr, graph_type='V', Edge_list = Edge_list,
+                                              init_lr, graph_type='V', edge_list = edge_list,
                                               device=device, max_time=np.inf, use_scheduler=False, use_blackbox_backprop=True)
   end_time = time.time()
   print('\n time to train BB GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')

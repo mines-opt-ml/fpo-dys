@@ -12,7 +12,7 @@ from src.utils import compute_perfect_path_acc, compute_perfect_path_acc_vertex
 import numpy
 
 def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
-            learning_rate, graph_type, edge_list, device='cpu', max_time=3600, use_scheduler=True, test_size=200):
+            learning_rate, graph_type, edge_list, device='cpu', max_time=3600, use_scheduler=True, test_batch_size=200, train_batch_size=200):
     '''
     Train network net using given parameters, for shortest path
     problem on a grid_size-by-grid_size grid graph.
@@ -21,9 +21,9 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
     '''
 
     ## Training setup
-    train_loader = DataLoader(dataset=train_dataset, batch_size=200,
+    train_loader = DataLoader(dataset=train_dataset, batch_size=train_batch_size,
                                   shuffle=True)
-    test_loader = DataLoader(dataset=test_dataset, batch_size=test_size,
+    test_loader = DataLoader(dataset=test_dataset, batch_size=test_batch_size,
                                  shuffle=False)
 
     optimizer = optim.Adam(net.parameters(), lr=learning_rate)
@@ -63,6 +63,9 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
     train_start_time = time.time()
     epoch=0
     epoch_time=0
+
+    # print initial test loss in :7.3e format
+    print('initial_test_loss: ', "{:5.2e}".format(test_loss), ' | initial_test_acc: ', "{:<7f}".format(accuracy))
 
     while epoch <= max_epochs and epoch_time <= max_time:
         for d_batch, path_batch in train_loader:

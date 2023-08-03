@@ -140,7 +140,7 @@ def compute_perfect_path_acc_vertex(pred_batch, true_batch):
   return score/batch_size
 
 ## Utility for computing normalized regret 
-def compute_regret(WW,d_batch, true_batch, pred_batch, type, edge_list, grid_size, device):
+def compute_regret_shortest_path(WW,d_batch, true_batch, pred_batch, type, edge_list, grid_size, device):
   '''
   Computes the difference in length between predicted path and best path.
   '''
