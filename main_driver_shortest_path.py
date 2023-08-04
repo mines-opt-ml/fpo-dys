@@ -3,7 +3,7 @@
 from src.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
 import matplotlib.pyplot as plt
 import time as time
-from src.shortest_path.trainer import trainer
+from src.trainer import trainer
 import numpy as np
 import torch
 import os
