@@ -14,10 +14,12 @@ class Dijkstra:
   """Shortest path on a grid using Dijkstra's algorithm."""
 
   def __init__(
-      self, four_neighbors=False, initial_cost=1e10, euclidean_weight=False):
+      self, vertex_mode=True, edge_list=None, four_neighbors=False, initial_cost=1e10, euclidean_weight=False):
     self.four_neighbors = four_neighbors
     self.initial_cost = initial_cost
     self.euclidean_weight = euclidean_weight
+    self.vertex_mode = vertex_mode
+    self.edge_list = edge_list
 
   def inside(self, x, y):
     return 0 <= x < self.shape[0] and 0 <= y < self.shape[1]
@@ -55,7 +57,7 @@ class Dijkstra:
     self.path[self.start] = 1.0
     self.path[self.end] = 1.0
 
-  def run_single(self, costs, Gen_Data=False):
+  def run_single(self, costs, Gen_Data = False):
     """Computes the shortest path on a single cost matrix."""
     self.reset(costs)
     while self.queue:
@@ -71,7 +73,11 @@ class Dijkstra:
           weight = np.sqrt((nx - x) ** 2 + (ny - y) ** 2)
         else:
           weight = 1.0
-        new_cost = weight * costs[nx, ny] + self.solution[x, y]
+        if self.vertex_mode == True:
+          new_cost = weight * costs[nx, ny] + self.solution[x, y]
+        else:
+          edge_index = self.edge_list.index(((x + 0.5, y + 0.5), (nx + 0.5, ny + 0.5)))
+          new_cost = weight * costs[edge_index] + self.solution[x, y]
         if new_cost < self.solution[nx, ny]:
           self.solution[nx, ny] = new_cost
           self.moves[(nx, ny)] = (x, y)
@@ -99,14 +105,14 @@ class Dijkstra:
                      for i in range(tensor.shape[0])],
                     axis=0)
 
-  def __call__(self, tensor):
+  def __call__(self, tensor, Gen_Data=False):
     if len(tensor.shape) > 3:
       return torch.stack([self.run_batch(tensor[i])
                        for i in range(tensor.shape[0])],
                       axis=0)
     if len(tensor.shape) == 3:
-      return self.run_batch(tensor)
-    return self.run_single(tensor)
+      return self.run_batch(tensor, Gen_Data)
+    return self.run_single(tensor, Gen_Data)
 
 
 def shift(x, i, j, pad_value = 0.0):

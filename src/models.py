@@ -155,7 +155,7 @@ class BB_ShortestPathNet(nn.Module):
 
 ## Create NN using DYS layer. Look how easy it is!
 class DYS_Warcraft_Net(DYS_opt_net):
-  def __init__(self, A, b, num_edges, device='cpu', in_channels=3):
+  def __init__(self, A, b, edges, num_edges, device='cpu', in_channels=3): #need edges at initialization now.
     super(DYS_Warcraft_Net, self).__init__(A, b)
     # self.context_size = context_size
     self.num_edges = num_edges
@@ -165,6 +165,10 @@ class DYS_Warcraft_Net(DYS_opt_net):
     del self.resnet_model.conv1
     self.resnet_model.conv1 = nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
     self.fc_final = nn.Linear(in_features=64*24*24, out_features=num_edges)
+
+    # Initialize exact solver
+    dijkstra = Dijkstra(vertex_mode=False, edge_list = edges, euclidean_weight=True,four_neighbors=False)
+    self.dijkstra = dijkstra
 
 
   def F(self, z, cost_vec):
@@ -184,6 +188,11 @@ class DYS_Warcraft_Net(DYS_opt_net):
     cost_vec = self.fc_final(d.reshape(batch_size, -1))
 
     return cost_vec.view(batch_size,-1) # size = batch_size x num_edges
+  
+  def test_time_forward(self, d):
+     cost_vec = self.data_space_forward(d)
+     path = self.dijkstra(cost_vec)
+     return path
   
 
 # ## Create NN using perturbed differentiable optimization
