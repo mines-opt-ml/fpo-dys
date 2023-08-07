@@ -4,8 +4,7 @@ hide:
 ---
 
 ## DYS-Net Overview
-::: src.dys_opt_net.DYS_opt_net.project_C1
+::: src.utils.greedy_decoder
     options:
       show_root_heading: false
-      show_source: false  
-      members: None
+      show_source: true  
