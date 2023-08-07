@@ -4,7 +4,7 @@ hide:
 ---
 
 ## DYS-Net Overview
-::: src.utils.greedy_decoder
+
+::: src.utils.edge_to_node
     options:
       show_root_heading: false
-      show_source: true  
