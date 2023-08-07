@@ -115,4 +115,4 @@ class DYS_opt_net(nn.Module, ABC):
         else:
             return self.project_C1(z).detach()
       else:
-         self.test_time_forward(d)
+         return self.test_time_forward(d)

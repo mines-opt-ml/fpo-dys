@@ -49,7 +49,7 @@ ne_trained_BB = []
 # grid_size_array = [5,10,20,30, 50, 100]
 # grid_size_array = [5,10]
 grid_size = 12
-base_data_path = './src/warcraft/warcraft_data/'
+base_data_path = './source/warcraft/warcraft_data/'
 
 # -----------------------------------------------------------
 # ------------------------ Train DYS ------------------------
@@ -76,14 +76,14 @@ A = A.to(device)
 b = b.to(device)
 
 ## Load model/network
-DYS_net = DYS_Warcraft_Net(A, b, num_edges=num_edges, device=device)
+DYS_net = DYS_Warcraft_Net(A, b, edge_list, num_edges=num_edges, device=device)
 DYS_net.to(device)
 
 # Train
 print('\n--------------------------------- ----------- TRAINING DYS Warcraft Grid ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
 start_time = time.time()
 tl_DYS, tt_DYS, ta_DYS = trainer(DYS_net, train_dataset_e, test_dataset_e, grid_size,
-                                max_epochs, init_lr, graph_type='E', edge_list = edge_list, max_time=np.inf, device=device, train_batch_size=1000, test_batch_size=1000)
+                                max_epochs, init_lr, graph_type='E', edge_list = edge_list, max_time=np.inf, device=device, train_batch_size=256, test_batch_size=256)
 end_time = time.time()
 print('\n time to train DYS GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 

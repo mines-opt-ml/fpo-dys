@@ -58,16 +58,16 @@ def node_to_edge(paths, edge_list):
 
   num_edges = len(edge_list)
   batch_size = paths.shape[0]
-  temp_costs = 2 - paths.numpy()
+  temp_costs = 2. - paths.numpy()
 
   for i in range(batch_size):
     path_v, path_e = dijkstra.run_single(temp_costs[i,:,:],Gen_Data=True)
     path_e.reverse() # reverse list as output starts from bottom right corner
     
-  # encode edge description of shortest path as a vector
-  path_vec_e = torch.zeros(len(edge_list))
-  for i in range(len(path_e)-1):
-    path_vec_e[edge_list.index((path_e[i], path_e[i+1]))] = 1
+    # encode edge description of shortest path as a vector
+    path_vec_e = torch.zeros(len(edge_list))
+    for j in range(len(path_e)-1):
+      path_vec_e[edge_list.index((path_e[j], path_e[j+1]))] = 1.
 
     assert path_vec_e.shape == edge_paths[i,:].shape
     edge_paths[i,:] = path_vec_e
@@ -120,10 +120,15 @@ def compute_perfect_path_acc(pred_batch, true_batch, edge_list, grid_size, devic
   score = 0.
   batch_size = pred_batch.shape[0]
   for i in range(batch_size):
-    curr_map = edge_to_node(pred_batch[i,:], edge_list, grid_size, device)
-    true_map = edge_to_node(true_batch[i,:], edge_list, grid_size, device)
-    path_map = greedy_decoder(curr_map, grid_size).to(device)
-    if torch.linalg.norm(path_map - true_map) < 0.001:
+    # curr_map = edge_to_node(pred_batch[i,:], edge_list, grid_size, device)
+    # true_map = edge_to_node(true_batch[i,:], edge_list, grid_size, device)
+    # path_map = greedy_decoder(curr_map, grid_size).to(device)
+    # print('\n Predicted Path \n')
+    # print(edge_to_node(pred_batch[i,:], edge_list, grid_size, device))
+    # print('\n True Path \n')
+    # print(edge_to_node(true_batch[i,:], edge_list, grid_size, device))
+    # print('\n ------------------------ \n')
+    if torch.linalg.norm(pred_batch[i,:] - true_batch[i,:]) < 0.001:
       score += 1.
   
   return score/batch_size
