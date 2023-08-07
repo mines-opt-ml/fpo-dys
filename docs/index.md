@@ -19,6 +19,7 @@
 
 <center>
 [Preprint :material-file-document-outline:](assets/fpo-dys-preprint.pdf){ .md-button .md-button--primary }
+[Code :octicons-code-16:](https://github.com/mines-opt-ml/fpo-dys){ .md-button .md-button--primary }    
 </center>
 
 !!! abstract "Abstract"
@@ -29,7 +30,7 @@
 !!! quote "Citation"
     ```
     @article{mckenzie2023faster,
-             title={{Faster Predict-and-Optimize with Three-Operator Splitting}},
+             title={{Faster Predict-and-Optimize with Davis-Yin Splitting}},
              author={McKenzie, Daniel and Wu Fung, Samy and Heaton, Howard},
              journal={arXiv preprint arXiv:2301.13395},
              year={2023}
