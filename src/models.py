@@ -4,9 +4,10 @@ import cvxpy as cp
 # import blackbox_backprop as bb 
 from cvxpylayers.torch import CvxpyLayer
 from abc import ABC, abstractmethod
-from src.dYS_opt_net import DYS_opt_net
+from src.dys_opt_net import DYS_opt_net
 from src.torch_Dijkstra import Dijkstra
 from src.shortest_path import perturbations
+from.utils import node_to_edge
 import torchvision
 
 
@@ -160,6 +161,7 @@ class DYS_Warcraft_Net(DYS_opt_net):
     # self.context_size = context_size
     self.num_edges = num_edges
     self.device=device
+    self.edges = edges
 
     self.resnet_model = torchvision.models.resnet18(pretrained=False, num_classes=num_edges)
     del self.resnet_model.conv1
@@ -189,10 +191,11 @@ class DYS_Warcraft_Net(DYS_opt_net):
 
     return cost_vec.view(batch_size,-1) # size = batch_size x num_edges
   
-  def test_time_forward(self, d):
-     cost_vec = self.data_space_forward(d)
-     path = self.dijkstra(cost_vec)
-     return path
+  # def test_time_forward(self, d):
+  #     cost_vec = self.data_space_forward(d)
+  #     path = self.dijkstra(cost_vec, batch_mode=True)
+  #     path = node_to_edge(path, self.edges).to(self.device)
+  #     return path
   
 
 # ## Create NN using perturbed differentiable optimization

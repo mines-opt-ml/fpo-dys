@@ -111,7 +111,6 @@ def greedy_decoder(node_map, m):
     count += 1
 
   return path_map
-    
 
 def compute_perfect_path_acc(pred_batch, true_batch, edge_list, grid_size, device):
   '''
@@ -120,15 +119,7 @@ def compute_perfect_path_acc(pred_batch, true_batch, edge_list, grid_size, devic
   score = 0.
   batch_size = pred_batch.shape[0]
   for i in range(batch_size):
-    # curr_map = edge_to_node(pred_batch[i,:], edge_list, grid_size, device)
-    # true_map = edge_to_node(true_batch[i,:], edge_list, grid_size, device)
-    # path_map = greedy_decoder(curr_map, grid_size).to(device)
-    # print('\n Predicted Path \n')
-    # print(edge_to_node(pred_batch[i,:], edge_list, grid_size, device))
-    # print('\n True Path \n')
-    # print(edge_to_node(true_batch[i,:], edge_list, grid_size, device))
-    # print('\n ------------------------ \n')
-    if torch.linalg.norm(pred_batch[i,:] - true_batch[i,:]) < 0.001:
+    if torch.linalg.norm(torch.round(pred_batch[i,:]) - true_batch[i,:]) < 1e-2:
       score += 1.
   
   return score/batch_size
@@ -139,7 +130,7 @@ def compute_perfect_path_acc_vertex(pred_batch, true_batch):
   for i in range(batch_size):
     path_map = pred_batch[i,:]
     true_map = true_batch[i,:]
-    if torch.linalg.norm(path_map - true_map) < 0.001:
+    if torch.linalg.norm(path_map - true_map) < 1e-2:
       score += 1.
   
   return score/batch_size

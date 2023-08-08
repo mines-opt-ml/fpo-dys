@@ -60,12 +60,12 @@ class DYS_opt_net(nn.Module, ABC):
       '''
       pass
 
-    @abstractmethod
-    def test_time_forward(self, d):
-       '''
-       Specify test time behaviour, e.g. use a combinatorial solver on the forward pass.
-       '''
-       pass
+    # @abstractmethod
+    # def test_time_forward(self, d):
+    #    '''
+    #    Specify test time behaviour, e.g. use a combinatorial solver on the forward pass.
+    #    '''
+    #    pass
 
 
     def apply_DYS(self, z, w): 
@@ -86,33 +86,30 @@ class DYS_opt_net(nn.Module, ABC):
       w are the parameters. To be passed to the operator F.
       """
 
-      if self.training:
-        with torch.no_grad():
-            w = self.data_space_forward(d)
-            self.depth = 0.0
+      with torch.no_grad():
+          w = self.data_space_forward(d)
+          self.depth = 0.0
 
-            z = torch.rand((self.n2), device=self.device)
-            z_prev = z.clone()      
+          z = torch.rand((self.n2), device=self.device)
+          z_prev = z.clone()      
+          
+          all_samp_conv = False
+          while not all_samp_conv and self.depth < max_depth:
+              z_prev = z.clone()   
+              z = self.apply_DYS(z, w)
+              diff_norm = torch.norm(z - z_prev) 
+              diff_norm = torch.norm( diff_norm) 
+              diff_norm = torch.max( diff_norm ) # take norm along the latter two dimensions then max
+              self.depth += 1.0
+              all_samp_conv = diff_norm <= eps
             
-            all_samp_conv = False
-            while not all_samp_conv and self.depth < max_depth:
-                z_prev = z.clone()   
-                z = self.apply_DYS(z, w)
-                diff_norm = torch.norm(z - z_prev) 
-                diff_norm = torch.norm( diff_norm) 
-                diff_norm = torch.max( diff_norm ) # take norm along the latter two dimensions then max
-                self.depth += 1.0
-                all_samp_conv = diff_norm <= eps
-              
-        if self.depth >= max_depth and depth_warning:
-            print("\nWarning: Max Depth Reached - Break Forward Loop\n")
+      if self.depth >= max_depth and depth_warning:
+          print("\nWarning: Max Depth Reached - Break Forward Loop\n")
 
-        attach_gradients = self.training
-        if attach_gradients:
-            w = self.data_space_forward(d)
-            z = self.apply_DYS(z.detach(), w)
-            return self.project_C1(z)
-        else:
-            return self.project_C1(z).detach()
+      attach_gradients = self.training
+      if attach_gradients:
+          w = self.data_space_forward(d)
+          z = self.apply_DYS(z.detach(), w)
+          return self.project_C1(z)
       else:
-         return self.test_time_forward(d)
+          return self.project_C1(z).detach()

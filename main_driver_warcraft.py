@@ -10,7 +10,7 @@ import torch
 import os
 
 ## Set device
-device = 'cuda:0'
+device = 'cuda'
 print('device: ', device)
 
 ## Some fixed hyperparameters
@@ -49,7 +49,7 @@ ne_trained_BB = []
 # grid_size_array = [5,10,20,30, 50, 100]
 # grid_size_array = [5,10]
 grid_size = 12
-base_data_path = './source/warcraft/warcraft_data/'
+base_data_path = './src/warcraft/warcraft_data/'
 
 # -----------------------------------------------------------
 # ------------------------ Train DYS ------------------------
