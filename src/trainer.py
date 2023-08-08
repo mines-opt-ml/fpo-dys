@@ -48,7 +48,7 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
     for d_batch, path_batch in test_loader:
         d_batch = d_batch.to(device)
         path_batch =path_batch.to(device)
-        path_pred = net(d_batch)
+        path_pred = net(d_batch).to(device)
         test_loss = criterion(path_batch, path_pred).item()
         test_loss_hist.append(test_loss)
         if graph_type == 'E':

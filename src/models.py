@@ -198,39 +198,56 @@ class DYS_Warcraft_Net(DYS_opt_net):
   #     return path
   
 
-# ## Create NN using perturbed differentiable optimization
-# class Pert_Warcraft_Net(nn.Module):
-#     '''
-#     This net is equipped to run an m-by-m grid graphs. No A matrix is necessary.
-#     '''
-#     def __init__(self, m, context_size, device='cpu'):
-#         super().__init__()
-#         self.m = m
-#         self.device = device
-#         self.hidden_dim = 2*context_size
+## Create NN using perturbed differentiable optimization
+class Pert_Warcraft_Net(nn.Module):
+    '''
+    This net is equipped to run an m-by-m grid graphs. No A matrix is necessary.
+    '''
+    def __init__(self, edges, num_edges, m, device='cpu', in_channels=3):
+        super().__init__()
+        self.num_edges = num_edges
+        self.device=device
+        self.edges = edges
+        self.m = m
 
-#         ## Standard layers
-#         self.fc_1 = nn.Linear(context_size, self.hidden_dim)
-#         self.fc_2 = nn.Linear(self.hidden_dim, self.m**2)
-#         self.leaky_relu = nn.LeakyReLU(0.1)
+        self.resnet_model = torchvision.models.resnet18(pretrained=False, num_classes=num_edges)
+        del self.resnet_model.conv1
+        self.resnet_model.conv1 = nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.fc_final = nn.Linear(in_features=64*24*24, out_features=self.m**2)
+
+        ## Perturbed Differentiable Optimization layer
+        dijkstra = Dijkstra(euclidean_weight=True,four_neighbors=True)
+        self.dijkstra = dijkstra
+        self.pert_dijkstra = perturbations.perturbed(dijkstra,
+                                      num_samples=3,
+                                      sigma=1.0,
+                                      noise='gumbel',
+                                      batched=True,
+                                      device=self.device)
+
         
-#         ## Perturbed Differentiable Optimization layer
-#         dijkstra = Dijkstra(euclidean_weight=True,four_neighbors=True)
-#         self.dijkstra = dijkstra
-#         self.pert_dijkstra = perturbations.perturbed(dijkstra,
-#                                       num_samples=3,
-#                                       sigma=1.0,
-#                                       noise='gumbel',
-#                                       batched=True,
-#                                       device=self.device)
-        
-#       ## Put it all together
-#     def forward(self, d):
-#         w = self.leaky_relu(self.fc_1(d))
-#         w = self.fc_2(w)
-#         if self.training:
-#           path = self.pert_dijkstra(w.view(w.shape[0], self.m, self.m))
-#         else:
-#           path = self.dijkstra(w.view(w.shape[0], self.m, self.m))
-#         return path.to(self.device)
+      ## Put it all together
+    def forward(self, d):
+        # w = self.leaky_relu(self.fc_1(d))
+        # w = self.fc_2(w)
+        # if self.training:
+        #   path = self.pert_dijkstra(w.view(w.shape[0], self.m, self.m))
+        # else:
+        #   path = self.dijkstra(w.view(w.shape[0], self.m, self.m))
+        # return path.to(self.device)
+    
+      batch_size = d.shape[0]
+      d = self.resnet_model.conv1(d)
+      d = self.resnet_model.bn1(d)
+      d = self.resnet_model.relu(d)
+      d = self.resnet_model.maxpool(d)
+      d = self.resnet_model.layer1(d)
+      cost_vec = self.fc_final(d.reshape(batch_size, -1)).view(batch_size, -1) # size = batch_size x num_vertices
+
+      if self.training:
+        path = self.pert_dijkstra(cost_vec.view(cost_vec.shape[0], self.m, self.m))
+      else:
+        path = self.dijkstra(cost_vec.view(cost_vec.shape[0], self.m, self.m), batch_mode=True)
+      return path.to(self.device)
+
         
