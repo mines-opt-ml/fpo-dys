@@ -48,6 +48,8 @@ extra:
   social:
     - icon: fontawesome/brands/instagram
       link: https://instagram.com/TypalAcademy  
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/typalacademy/  
     - icon: fontawesome/brands/patreon
       link: https://patreon.com/TypalAcademy         
     - icon: fontawesome/brands/twitter
