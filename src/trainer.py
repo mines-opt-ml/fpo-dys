@@ -8,7 +8,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import time as time
 import torch.nn as nn
-from src.utils import compute_perfect_path_acc, compute_perfect_path_acc_vertex
+from src.utils import compute_perfect_path_acc, compute_perfect_path_acc_vertex, edge_to_node
 import numpy
 
 def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
@@ -88,7 +88,7 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
         for d_batch, path_batch in test_loader:
             d_batch = d_batch.to(device)
             path_batch =path_batch.to(device)
-            path_pred = net(d_batch)
+            path_pred = net(d_batch)    
             test_loss = criterion(path_batch, path_pred).item()
             scheduler.step(test_loss)
             test_loss_hist.append(test_loss)
@@ -104,10 +104,18 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
             test_acc_hist.append(accuracy)
         
         print('epoch: ', epoch, '| ave_tr_loss: ', "{:5.2e}".format(train_loss_ave), '| te_loss: ', "{:5.2e}".format(test_loss), '| acc.: ', "{:<7f}".format(accuracy), '| lr: ', "{:5.2e}".format(optimizer.param_groups[0]['lr']), '| time: ', "{:<15f}".format(epoch_time))
-            
-            
 
         epoch += 1
+        
+        if epoch==max_epochs:
+            print('\n ------------------------ \n')
+            print('\n Predicted Path \n')
+            print('path_pred edge = ', torch.nonzero(path_pred[2,:]))
+            print(edge_to_node(path_pred[2,:], edge_list, grid_size, device))
+            print('\n True Path \n')
+            print(edge_to_node(path_batch[2,:], edge_list, grid_size, device))
+            print('path_batch edge = ', torch.nonzero(path_batch[2,:]))
+            print('\n ------------------------ \n')
 
 
     # return test_loss_hist, train_time, test_acc_hist, best_params

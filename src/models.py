@@ -162,6 +162,7 @@ class DYS_Warcraft_Net(DYS_opt_net):
     self.num_edges = num_edges
     self.device=device
     self.edges = edges
+    self.relu = nn.ReLU()
 
     self.resnet_model = torchvision.models.resnet18(pretrained=False, num_classes=num_edges)
     del self.resnet_model.conv1
@@ -169,8 +170,8 @@ class DYS_Warcraft_Net(DYS_opt_net):
     self.fc_final = nn.Linear(in_features=64*24*24, out_features=num_edges)
 
     # Initialize exact solver
-    dijkstra = Dijkstra(vertex_mode=False, edge_list = edges, euclidean_weight=True,four_neighbors=False)
-    self.dijkstra = dijkstra
+    # dijkstra = Dijkstra(vertex_mode=False, edge_list = edges, euclidean_weight=True,four_neighbors=False)
+    # self.dijkstra = dijkstra
 
 
   def F(self, z, cost_vec):
@@ -187,7 +188,7 @@ class DYS_Warcraft_Net(DYS_opt_net):
     d = self.resnet_model.relu(d)
     d = self.resnet_model.maxpool(d)
     d = self.resnet_model.layer1(d)
-    cost_vec = self.fc_final(d.reshape(batch_size, -1))
+    cost_vec = self.relu(self.fc_final(d.reshape(batch_size, -1)))
 
     return cost_vec.view(batch_size,-1) # size = batch_size x num_edges
   

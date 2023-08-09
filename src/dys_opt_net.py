@@ -34,7 +34,7 @@ class DYS_opt_net(nn.Module, ABC):
         '''
         Projection to the non-negative orthant.
         '''
-        return torch.clamp(x, min=0, max=1)
+        return torch.clamp(x, min=0)
 
     def project_C2(self, z):
       '''
