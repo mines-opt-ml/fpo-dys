@@ -22,16 +22,7 @@ class ShortestPathNet(DYS_opt_net):
     self.hidden_dim = 2*context_size
     self.Edges = Edges
     self.device=device
-
-    ## Compute geometric edge length multiplier
-    # Edge_lengths = []
-    #for edge in Edges:
-    #  v1 = edge[0]
-    #  v2 = edge[1]
-    #  edge_length = torch.sqrt((v1[0] - v2[0])**2 + (v1[1] - v2[1])**2)
-    #  Edge_lengths.append(edge_length)
-
-    # self.Edge_lengths = torch.stack(Edge_lengths)
+    
     ## initialize fc layers
     self.fc_1 = nn.Linear(context_size, self.hidden_dim)
     self.fc_2 = nn.Linear(self.hidden_dim, self.num_edges)

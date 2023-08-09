@@ -52,7 +52,7 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
         test_loss = criterion(path_batch, path_pred).item()
         test_loss_hist.append(test_loss)
         if graph_type == 'E':
-            accuracy = compute_perfect_path_acc(path_pred, path_batch, edge_list, grid_size, device)
+            accuracy = compute_perfect_path_acc(path_pred, path_batch)
             # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', edge_list, grid_size, device)
         else:
             accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
@@ -95,7 +95,7 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
             # print('epoch: ', epoch, 'test loss is ', test_loss)
             ## Evaluate accuracy
             if graph_type == 'E':
-                accuracy = compute_perfect_path_acc(path_pred, path_batch, edge_list, grid_size, device)
+                accuracy = compute_perfect_path_acc(path_pred, path_batch)
                 # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', edge_list, grid_size, device)
             else:
                 accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)

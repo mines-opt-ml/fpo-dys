@@ -9,11 +9,11 @@ import torch
 import os
 
 ## Set device
-device = 'cuda:0'
+device = 'mps' #'cuda:0'
 print('device: ', device)
 
 ## Some fixed hyperparameters
-max_epochs = 2
+max_epochs = 20
 init_lr = 1e-2 # initial learning rate. We're using a scheduler. 
 torch.manual_seed(0)
 
