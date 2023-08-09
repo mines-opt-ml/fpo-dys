@@ -34,20 +34,6 @@ def edge_to_node(path, edge_list, m, device):
       node_map[node_1[0], node_1[1]] += edge_val
   return node_map/2
 
-# ## Utility for converting path in vertex format to edge list format (BUGGY DOES NOT WORK)
-# def node_to_edge(path, edge_list):
-#     num_edges = len(edge_list)
-#     path_e = np.zeros(num_edges)
-#     row_inds, col_inds = np.nonzero(path)
-#     for i in range(len(row_inds)-1):
-#         edge = ((row_inds[i]+0.5, col_inds[i]+0.5), (row_inds[i+1]+0.5, col_inds[i+1]+0.5))
-#         try:
-#           path_e[edge_list.index(edge)] = 1.
-#         except:
-#           print('error!')
-#           print(path)
-#     return path_e
-
 def node_to_edge(paths, edge_list):
   # converts paths to edges
   # assumes paths is shape (batch_size, m, m)
@@ -218,7 +204,7 @@ def create_shortest_path_data(m, train_size, test_size, context_size):
 
     ## Construct an instance of the dijkstra class
     # Only considering four neighbors---no diag edges
-    dijkstra = Dijkstra(euclidean_weight=True,four_neighbors=True)
+    dijkstra = Dijkstra(grid_size=m, euclidean_weight=True,four_neighbors=True)
     # Loop and determine the shortest paths
     for context in enumerate(Context):
         weight_vec = torch.matmul(WW, context[1]) # context[1] as the enumerate command yields tuples

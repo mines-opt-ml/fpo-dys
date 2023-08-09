@@ -14,7 +14,7 @@ class Dijkstra:
   """Shortest path on a grid using Dijkstra's algorithm."""
 
   def __init__(
-      self, vertex_mode=True, grid_size=12, edge_list=None, four_neighbors=False, initial_cost=1e10, euclidean_weight=False):
+      self, grid_size, vertex_mode=True, edge_list=None, four_neighbors=False, initial_cost=1e10, euclidean_weight=False):
     self.four_neighbors = four_neighbors
     self.initial_cost = initial_cost
     self.euclidean_weight = euclidean_weight
