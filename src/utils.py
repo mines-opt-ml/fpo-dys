@@ -3,13 +3,9 @@ Utilities for testing Differentiable shortest path algorithms
 Daniel McKenzie
 November 2022
 '''
-import numpy as np
 import torch
 import itertools
-import torch.nn as nn
-
-import networkx as nx
-from torch.utils.data import Dataset, TensorDataset, DataLoader
+from torch.utils.data import TensorDataset
 from torch.utils.data.dataset import random_split, Subset
 from src.torch_Dijkstra import Dijkstra
 
@@ -34,24 +30,25 @@ def edge_to_node(path, edge_list, m, device):
       node_map[node_1[0], node_1[1]] += edge_val
   return node_map/2
 
-def node_to_edge(paths, edge_list):
+def node_to_edge(paths, edge_list, four_neighbors=False):
   # converts paths to edges
   # assumes paths is shape (batch_size, m, m)
   # assumes edge_list is list of edges
-  dijkstra = Dijkstra(euclidean_weight=True,four_neighbors=False)
-
-  edge_paths = torch.zeros(paths.shape[0], len(edge_list))
 
   num_edges = len(edge_list)
   batch_size = paths.shape[0]
-  temp_costs = 2. - paths.numpy()
+  grid_size = paths.shape[1]
+  dijkstra = Dijkstra(grid_size=grid_size, euclidean_weight=True, four_neighbors=four_neighbors)
+  
+  edge_paths = torch.zeros(batch_size, num_edges)
+  temp_costs = 1e5 - paths.numpy() #DM: Choice of 1e5 is a bit arbitrary. Could lead to errors?
 
   for i in range(batch_size):
-    path_v, path_e = dijkstra.run_single(temp_costs[i,:,:],Gen_Data=True)
+    _, path_e = dijkstra.run_single(temp_costs[i,:,:],Gen_Data=True)
     path_e.reverse() # reverse list as output starts from bottom right corner
     
     # encode edge description of shortest path as a vector
-    path_vec_e = torch.zeros(len(edge_list))
+    path_vec_e = torch.zeros(num_edges)
     for j in range(len(path_e)-1):
       path_vec_e[edge_list.index((path_e[j], path_e[j+1]))] = 1.
 
@@ -62,6 +59,10 @@ def node_to_edge(paths, edge_list):
 
 
 def get_neighboring_vertices(curr_vertex, prev_vertex, m):
+  '''
+  Based on the around.py function in torch_Dijkstra, which is itself lightly adapted from code available at
+https://github.com/google-research/google-research/blob/master/perturbations/experiments/shortest_path.py
+  '''
   neighbors = []
   valid_offsets = itertools.product(range(-1, 2), range(-1, 2))
   for offset in valid_offsets:
@@ -72,35 +73,10 @@ def get_neighboring_vertices(curr_vertex, prev_vertex, m):
             neighbors.append((curr_vertex[0] + offset[0],curr_vertex[1] + offset[1]))
   return neighbors
 
-## Utility for computing the fraction of inferences for which the predicted
-# path is optimal.
-
-def greedy_decoder(node_map, m):
-  curr_vertex = (0,0)
-  prev_vertex = (-1, -1)
-  path_map = torch.zeros(node_map.shape)
-  path_map[0, 0] = 1.0
-  visited_list = [(0,0)]
-  count = 0
-  while curr_vertex != (m-1, m-1) and count <= 1000:
-    neighbors = get_neighboring_vertices(curr_vertex, prev_vertex, m)
-    next_vertex = curr_vertex
-    next_vertex_val = 0.0
-    for neighbor in neighbors:
-      if node_map[neighbor[0], neighbor[1]] > next_vertex_val and neighbor not in visited_list: 
-        next_vertex_val = node_map[neighbor[0], neighbor[1]]
-        next_vertex = neighbor
-    prev_vertex = curr_vertex
-    curr_vertex = next_vertex
-    visited_list.append(curr_vertex)
-    path_map[curr_vertex[0], curr_vertex[1]] = 1.0
-    count += 1
-
-  return path_map
-
-def compute_perfect_path_acc(pred_batch, true_batch, edge_list, grid_size, device):
+def compute_perfect_path_acc(pred_batch, true_batch):
   '''
-  Greedily decode Node map from Edge_to_Node. Compute accuracy.
+  Simple utility for determining what fraction of predicted paths in pred_batch match the ground
+  truth paths in true_batch. More sophisticated approaches could use Dijkstra's algorithm, but we find this suffices.
   '''
   score = 0.
   batch_size = pred_batch.shape[0]
@@ -122,6 +98,7 @@ def compute_perfect_path_acc_vertex(pred_batch, true_batch):
   return score/batch_size
 
 ## Utility for computing normalized regret 
+# TODO: Fix this so that it can also be used with warcraft example.
 def compute_regret_shortest_path(WW,d_batch, true_batch, pred_batch, type, edge_list, grid_size, device):
   '''
   Computes the difference in length between predicted path and best path.
@@ -153,21 +130,6 @@ def compute_regret_shortest_path(WW,d_batch, true_batch, pred_batch, type, edge_
     else:
       regret += temp_regret/length_shortest_path
   return regret/batch_size
-
-# #### The following are utilities related to Regret loss.
-# def RegretLoss(nn.Module):
-#     def __init__(self, n, device):
-#         super(RegretLoss, self).__init__()
-#         self.device = device
-#         self.n = n  # number of variables
-    
-#     def forward(self, d, w_true, x_pred):
-#       '''
-#       d is (batch of) contexts, w_true is (batch of) true 
-#       cost vectors.
-#       '''
-#       cost = torch.matmul(w_true.view(-1, self.n), x_pred)
-#       return torch.mean(cost)
 
 def create_shortest_path_data(m, train_size, test_size, context_size):
     '''
