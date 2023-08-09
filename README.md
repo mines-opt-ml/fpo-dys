@@ -12,7 +12,7 @@ See ```src/requirements.txt``` for standard required packages. In addition, the 
 
 ## Publication
 
-_Faster Predict-then-Optimize with Davis-Yin Splitting_ (**[arXiv Link](https://arxiv.org/abs/2301.13395)**)
+_Faster Predict-and-Optimize with Davis-Yin Splitting_ (**[arXiv Link](https://arxiv.org/abs/2301.13395)**)
     
     @article{mckenzie2023faster,
       title={Faster Predict-and-Optimize with Davis-Yin Splitting},

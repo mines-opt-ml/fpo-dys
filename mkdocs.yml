@@ -1,4 +1,4 @@
-site_name: Faster Predict-Then-Optimize with Davis-Yin Splitting
+site_name: Faster Predict-and-Optimize with Davis-Yin Splitting
 site_description: Operator splitting can be used to design easy-to-train models for predict-and-optimize tasks, which scale effortlessly to problems with thousands of variables.
 
 extra_css:
