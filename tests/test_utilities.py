@@ -47,24 +47,53 @@ class test_edge_to_node(unittest.TestCase):
 
         self.A = A.to(self.device)
         self.b = b.to(self.device)
-        self.n_samples = len(train_dataset_e)
-        self.d_edge, self.path_edge = train_dataset_e[0:self.n_samples]
-        self.d_vertex, self.path_vertex = train_dataset_v[0:self.n_samples]
+        self.n_samples = len(test_dataset_e)
+        self.d_edge, self.path_edge = test_dataset_e[0:self.n_samples]
+        self.d_vertex, self.path_vertex = test_dataset_v[0:self.n_samples]
+
+        self.dys_net = DYS_Warcraft_Net(self.A, self.b, self.edge_list, self.num_edges, self.device)
+        self.dys_net.to(self.device)
     
     def test_edge_to_node(self):
         # Test that edge_to_node returns correct node path
 
         for i in range(self.n_samples):
             path_vertex2 = edge_to_node(self.path_edge[i,:], self.edge_list, self.grid_size, device=self.device)
-            self.assertTrue( torch.allclose(path_vertex2, self.path_vertex[i,:,:]))
 
-            print('i = ', i, ', path_batch_v = edge_to_node(path_batch_e)')
+            self.assertTrue( torch.allclose(path_vertex2.view(-1, self.grid_size, self.grid_size), self.path_vertex[i,:,:].view(-1, self.grid_size, self.grid_size)))
 
-            path_edge2 = node_to_edge(path_vertex2, self.edge_list, four_neighbors=False)
-            self.assertTrue( torch.allclose( path_edge2, self.path_edge[i,:]) )
+            path_edge2 = node_to_edge(path_vertex2.view(-1, self.grid_size, self.grid_size), self.edge_list, four_neighbors=False)
+            self.assertTrue( torch.allclose( path_edge2.view(1, self.num_edges), self.path_edge[i,:].view(1, self.num_edges)) )
 
-            print('i = ', i, ', path_batch_e = node_to_edge(path_batch_v)')
+            if i%100==0:
+                print('i = ', i, ', node_to_edge and edge_to_node passed')
 
+        print('\n\n-------------- edge_to_node and node_to_edge tests passed --------------\n\n')
+
+    def test_Amat_and_bvec(self):
+
+        for i in range(self.A.shape[0]):
+            self.assertTrue(torch.sum(self.A[:,i])==0)
+
+        self.assertTrue(torch.all(self.b[1:len(self.b)-1] == 0))
+        self.assertTrue(self.b[0]==-1. and self.b[-1]==1.)
+
+        print('\n\n-------------- A matrix and b vector tests passed --------------\n\n')
+
+    def test_dys_net(self):
+        
+        path_pred = self.dys_net(self.d_edge).detach()
+        cost_pred = self.dys_net.data_space_forward(self.d_edge).detach()
+        
+        self.assertTrue(torch.all(cost_pred >= 0))
+        print('cost_vec >= 0')
+        
+        for i in range(path_pred.shape[0]):
+            constraint_norm = torch.norm(self.A@path_pred[i,:] - self.b)
+            self.assertTrue( constraint_norm <= 1e-2)
+            print('for sample ', i, ', |Ax - b| = ', constraint_norm, '  < 1e-2')
+
+        print('\n\n-------------- dys_net tests passed --------------\n\n')
 
 if __name__ == '__main__':
     unittest.main()
