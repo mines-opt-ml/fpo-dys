@@ -19,16 +19,13 @@ from src.trainer import trainer
 from src.utils import edge_to_node, node_to_edge
 
 class test_edge_to_node(unittest.TestCase):
-    
-    def test_edge_to_node(self):
-        # Test that edge_to_node returns correct node path
 
-        ## Set device
-        device = 'cpu'
-        print('device: ', device)
+    def setUp(self):
+         ## Set device
+        self.device = 'cpu'
+        print('device: ', self.device)
 
-
-        grid_size = 12
+        grid_size=12
         base_data_path = os.path.join(os.path.dirname(__file__), '../src/warcraft/warcraft_data/')
 
         ## Load data
@@ -41,22 +38,33 @@ class test_edge_to_node(unittest.TestCase):
         train_dataset_v = state['train_dataset_v']
         test_dataset_v = state['test_dataset_v']
 
-        grid_size = state["m"]
+        self.grid_size = state["m"]
         A = state["A"].float()
         b = state["b"].float()
-        num_edges = state["num_edges"]
-        edge_list = state["edge_list"]
-        edge_list_torch = torch.tensor(edge_list)
+        self.num_edges = state["num_edges"]
+        self.edge_list = state["edge_list"]
+        edge_list_torch = torch.tensor(self.edge_list)
 
-        A = A.to(device)
-        b = b.to(device)
-        n_samples_train = len(train_dataset_e)
-        d_batch_e, path_batch_e = train_dataset_e[0:n_samples_train]
-        d_batch_v, path_batch_v = train_dataset_v[0:n_samples_train]
+        self.A = A.to(self.device)
+        self.b = b.to(self.device)
+        self.n_samples = len(train_dataset_e)
+        self.d_edge, self.path_edge = train_dataset_e[0:self.n_samples]
+        self.d_vertex, self.path_vertex = train_dataset_v[0:self.n_samples]
+    
+    def test_edge_to_node(self):
+        # Test that edge_to_node returns correct node path
 
-        for i in range(n_samples_train):
-            path_batch_v2_i = edge_to_node(path_batch_e[i,:], edge_list, grid_size, device='cpu')
-            self.assertTrue( torch.allclose(path_batch_v2_i, path_batch_v[i,:,:]) )
+        for i in range(self.n_samples):
+            path_vertex2 = edge_to_node(self.path_edge[i,:], self.edge_list, self.grid_size, device=self.device)
+            self.assertTrue( torch.allclose(path_vertex2, self.path_vertex[i,:,:]))
+
+            print('i = ', i, ', path_batch_v = edge_to_node(path_batch_e)')
+
+            path_edge2 = node_to_edge(path_vertex2, self.edge_list, four_neighbors=False)
+            self.assertTrue( torch.allclose( path_edge2, self.path_edge[i,:]) )
+
+            print('i = ', i, ', path_batch_e = node_to_edge(path_batch_v)')
+
 
 if __name__ == '__main__':
     unittest.main()
