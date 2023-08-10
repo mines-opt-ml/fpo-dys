@@ -45,19 +45,22 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
 
     ## Compute initial loss
     net.eval()
+    batch_counter = 0
     for d_batch, path_batch in test_loader:
-        d_batch = d_batch.to(device)
-        path_batch =path_batch.to(device)
-        path_pred = net(d_batch).to(device)
-        test_loss = criterion(path_batch, path_pred).item()
-        test_loss_hist.append(test_loss)
-        if graph_type == 'E':
-            accuracy = compute_perfect_path_acc(path_pred, path_batch)
-            # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', edge_list, grid_size, device)
-        else:
-            accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
-            # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', edge_list, grid_size, device)
-        test_acc_hist.append(accuracy)
+        if batch_counter < 1:
+            d_batch = d_batch.to(device)
+            path_batch =path_batch.to(device)
+            path_pred = net(d_batch).to(device)
+            test_loss = criterion(path_batch, path_pred).item()
+            test_loss_hist.append(test_loss)
+            if graph_type == 'E':
+                accuracy = compute_perfect_path_acc(path_pred, path_batch)
+                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', edge_list, grid_size, device)
+            else:
+                accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
+                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', edge_list, grid_size, device)
+            test_acc_hist.append(accuracy)
+            batch_counter += 1
 
     ## Train!
     train_start_time = time.time()
@@ -85,36 +88,39 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
 
         # Evaluate progress on test set. (note one batch is entire dataset)
         net.eval()
+        batch_counter = 0
         for d_batch, path_batch in test_loader:
-            d_batch = d_batch.to(device)
-            path_batch =path_batch.to(device)
-            path_pred = net(d_batch)    
-            test_loss = criterion(path_batch, path_pred).item()
-            scheduler.step(test_loss)
-            test_loss_hist.append(test_loss)
-            # print('epoch: ', epoch, 'test loss is ', test_loss)
-            ## Evaluate accuracy
-            if graph_type == 'E':
-                accuracy = compute_perfect_path_acc(path_pred, path_batch)
-                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', edge_list, grid_size, device)
-            else:
-                accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
-                # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', edge_list, grid_size, device)
-            # print('epoch: ', epoch, 'accuracy is ', accuracy)
-            test_acc_hist.append(accuracy)
+            if batch_counter < 1:
+                d_batch = d_batch.to(device)
+                path_batch =path_batch.to(device)
+                path_pred = net(d_batch)    
+                test_loss = criterion(path_batch, path_pred).item()
+                scheduler.step(test_loss)
+                test_loss_hist.append(test_loss)
+                # print('epoch: ', epoch, 'test loss is ', test_loss)
+                ## Evaluate accuracy
+                if graph_type == 'E':
+                    accuracy = compute_perfect_path_acc(path_pred, path_batch)
+                    # regret = compute_regret(WW, d_batch, path_batch, path_pred,'E', edge_list, grid_size, device)
+                else:
+                    accuracy = compute_perfect_path_acc_vertex(path_pred, path_batch)
+                    # regret = compute_regret(WW, d_batch, path_batch, path_pred,'V', edge_list, grid_size, device)
+                # print('epoch: ', epoch, 'accuracy is ', accuracy)
+                test_acc_hist.append(accuracy)
+                batch_counter += 1
         
         print('epoch: ', epoch, '| ave_tr_loss: ', "{:5.2e}".format(train_loss_ave), '| te_loss: ', "{:5.2e}".format(test_loss), '| acc.: ', "{:<7f}".format(accuracy), '| lr: ', "{:5.2e}".format(optimizer.param_groups[0]['lr']), '| time: ', "{:<15f}".format(epoch_time))
 
         epoch += 1
         
-        if epoch==max_epochs:
+        for i in range(10):
             print('\n ------------------------ \n')
             print('\n Predicted Path \n')
-            print('path_pred edge = ', torch.nonzero(path_pred[2,:]))
-            print(edge_to_node(path_pred[2,:], edge_list, grid_size, device))
+            # print('path_pred edge = ', torch.nonzero(path_pred[2,:]))
+            print(edge_to_node(path_pred[i,:], edge_list, grid_size, device))
             print('\n True Path \n')
-            print(edge_to_node(path_batch[2,:], edge_list, grid_size, device))
-            print('path_batch edge = ', torch.nonzero(path_batch[2,:]))
+            print(edge_to_node(path_batch[i,:], edge_list, grid_size, device))
+            # print('path_batch edge = ', torch.nonzero(path_batch[2,:]))
             print('\n ------------------------ \n')
 
 

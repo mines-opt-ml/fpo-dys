@@ -10,12 +10,12 @@ import torch
 import os
 
 ## Set device
-device = 'cuda:2'
+device = 'mps' # 'cuda:2'
 print('device: ', device)
 
 ## Some fixed hyperparameters
 max_epochs = 20
-init_lr = 5e-5 # initial learning rate. We're using a scheduler. 
+init_lr = 1e-6 # initial learning rate. We're using a scheduler. 
 torch.manual_seed(0)
 
 # check that directory to save data exists 
@@ -83,7 +83,7 @@ DYS_net.to(device)
 print('\n--------------------------------- ----------- TRAINING DYS Warcraft Grid ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
 start_time = time.time()
 tl_DYS, tt_DYS, ta_DYS = trainer(DYS_net, train_dataset_e, test_dataset_e, grid_size,
-                                max_epochs, init_lr, graph_type='E', edge_list = edge_list, max_time=np.inf, device=device, train_batch_size=256, test_batch_size=256)
+                                max_epochs, init_lr, graph_type='E', edge_list = edge_list, max_time=np.inf, device=device, train_batch_size=512, test_batch_size=10)
 end_time = time.time()
 print('\n time to train DYS GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 

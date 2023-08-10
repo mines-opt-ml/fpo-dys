@@ -154,22 +154,33 @@ class DYS_Warcraft_Net(DYS_opt_net):
     self.device=device
     self.edges = edges
     self.relu = nn.ReLU()
+    self.dropout = nn.Dropout(0.3)
 
     self.resnet_model = torchvision.models.resnet18(pretrained=False, num_classes=num_edges)
     del self.resnet_model.conv1
     self.resnet_model.conv1 = nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
     self.fc_final = nn.Linear(in_features=64*24*24, out_features=num_edges)
 
+    ## Compute geometric edge length multiplier
+    edge_lengths = []
+    for edge in edges:
+      v1 = torch.FloatTensor(edge[0])
+      v2 = torch.FloatTensor(edge[1])
+      edge_length = torch.sqrt((v1[0] - v2[0])**2 + (v1[1] - v2[1])**2)
+      edge_lengths.append(edge_length)
+
+    self.edge_lengths = torch.FloatTensor(edge_lengths).to(device)
+
     # Initialize exact solver
-    # dijkstra = Dijkstra(vertex_mode=False, edge_list = edges, euclidean_weight=True,four_neighbors=False)
-    # self.dijkstra = dijkstra
+    dijkstra = Dijkstra(vertex_mode=False, grid_size=12, edge_list = edges, euclidean_weight=True,four_neighbors=False)
+    self.dijkstra = dijkstra
 
 
   def F(self, z, cost_vec):
     '''
     gradient of cost vector with a little bit of regularization.
     '''
-    return cost_vec + 0.0005*z
+    return self.edge_lengths*cost_vec + 0.0005*z
 
   def data_space_forward(self, d):
 
@@ -179,15 +190,16 @@ class DYS_Warcraft_Net(DYS_opt_net):
     d = self.resnet_model.relu(d)
     d = self.resnet_model.maxpool(d)
     d = self.resnet_model.layer1(d)
-    cost_vec = self.relu(self.fc_final(d.reshape(batch_size, -1)))
-
-    return cost_vec.view(batch_size,-1) # size = batch_size x num_edges
+    cost_vec = self.dropout(self.relu(self.fc_final(d.reshape(batch_size, -1))))
+    return cost_vec # cost_vec.view(batch_size,-1) # size = batch_size x num_edges
   
-  # def test_time_forward(self, d):
-  #     cost_vec = self.data_space_forward(d)
-  #     path = self.dijkstra(cost_vec, batch_mode=True)
-  #     path = node_to_edge(path, self.edges).to(self.device)
-  #     return path
+  def test_time_forward(self, d):
+      cost_vec = self.data_space_forward(d)
+      nonzero_entries = torch.nonzero(cost_vec)
+      print(nonzero_entries)
+      path = self.dijkstra(cost_vec, batch_mode=True)
+      path = node_to_edge(path, self.edges).to(self.device)
+      return path
   
 
 ## Create NN using perturbed differentiable optimization
