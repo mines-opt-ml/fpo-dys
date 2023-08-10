@@ -41,7 +41,7 @@ def node_to_edge(paths, edge_list, four_neighbors=False):
   dijkstra = Dijkstra(grid_size=grid_size, euclidean_weight=True, four_neighbors=four_neighbors)
   
   edge_paths = torch.zeros(batch_size, num_edges)
-  temp_costs = 1e5 - paths.numpy() #DM: Choice of 1e5 is a bit arbitrary. Could lead to errors?
+  temp_costs = 1000. - 999*paths.numpy() #DM: Choice of constants here is a bit arbitrary.
 
   for i in range(batch_size):
     _, path_e = dijkstra.run_single(temp_costs[i,:,:],Gen_Data=True)
