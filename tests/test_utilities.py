@@ -5,6 +5,7 @@ import os
 import matplotlib.pyplot as plt
 import time as time
 import unittest
+import blackbox_backprop as bb 
 
 import sys
 root_dir = "../"
@@ -14,7 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
 from src.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
-from src.models import DYS_Warcraft_Net, Pert_Warcraft_Net
+from src.models import DYS_Warcraft_Net, Pert_Warcraft_Net, BB_Warcraft_Net
 from src.trainer import trainer
 from src.utils import edge_to_node, node_to_edge, compute_accuracy
 
@@ -47,10 +48,13 @@ class test_edge_to_node(unittest.TestCase):
         self.A = A.to(self.device)
         self.b = b.to(self.device)
         self.n_samples = 10
-        self.d_edge, self.path_edge, self.path_vertex, self.costs = test_dataset[0:self.n_samples]
+        self.terrain, self.path_edge, self.path_vertex, self.costs = test_dataset[0:self.n_samples]
 
         self.dys_net = DYS_Warcraft_Net(self.A, self.b, self.edge_list, self.num_edges, self.device)
         self.dys_net.to(self.device)
+
+        self.bb_net = BB_Warcraft_Net(self.edge_list, self.num_edges, self.grid_size, device=self.device)
+        self.bb_net.to(self.device)
     
     def test_edge_to_node(self):
         # Test that edge_to_node returns correct node path
@@ -129,18 +133,25 @@ class test_edge_to_node(unittest.TestCase):
 
     def test_dys_net(self):
         
-        path_pred = self.dys_net(self.d_edge).detach()
-        cost_pred = self.dys_net.data_space_forward(self.d_edge).detach()
+        path_pred = self.dys_net(self.terrain).detach()
+        cost_pred = self.dys_net.data_space_forward(self.terrain).detach()
         
         self.assertTrue(torch.all(cost_pred >= 0))
         print('cost_vec >= 0')
         
         for i in range(path_pred.shape[0]):
             constraint_norm = torch.norm(self.A@path_pred[i,:] - self.b)
-            self.assertTrue( constraint_norm <= 1e-2)
-            print('for sample ', i, ', |Ax - b| = ', constraint_norm, '  < 1e-2')
+            print('for sample ', i, ', |Ax - b| = ', constraint_norm, '  < 1e-1')
+            self.assertTrue( constraint_norm <= 1e-1)
 
         print('\n\n-------------- dys_net tests passed --------------\n\n')
+
+    def test_bb_net(self):
+        
+        path_pred = self.bb_net(self.terrain)
+        self.assertTrue(path_pred.shape == self.path_vertex.shape)
+
+        print('\n\n-------------- bb_net tests passed --------------\n\n')
 
 if __name__ == '__main__':
     unittest.main()

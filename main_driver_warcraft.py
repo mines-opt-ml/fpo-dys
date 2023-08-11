@@ -1,7 +1,7 @@
 # Assume path is root directory
 
 from src.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
-from src.models import DYS_Warcraft_Net, Pert_Warcraft_Net
+from src.models import DYS_Warcraft_Net, Pert_Warcraft_Net, BB_Warcraft_Net
 import matplotlib.pyplot as plt
 import time as time
 from src.trainer import trainer_warcraft
@@ -15,7 +15,7 @@ print('device: ', device)
 
 ## Some fixed hyperparameters
 max_epochs = 100
-init_lr = 1e-5 # initial learning rate. We're using a scheduler. 
+init_lr = 1e-6 # initial learning rate. We're using a scheduler. 
 torch.manual_seed(0)
 
 # check that directory to save data exists 
@@ -118,8 +118,64 @@ test_batch_size = 1000
 # ## Save Histories
 # torch.save(state, './src/warcraft/results/'+'DYS_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
+# # ---------------------------------------------------------------
+# # ------------------------ Train PertOpt ------------------------
+# # ---------------------------------------------------------------
+
+# ## Load data
+# data_path = base_data_path + 'Warcraft_training_data'+str(grid_size)+'.pth'
+# state = torch.load(data_path)
+
+# ## Extract data from state
+# train_dataset = state['train_dataset']
+# val_dataset = state['val_dataset']
+# test_dataset = state['test_dataset']
+
+
+# m= state["m"]
+# # A = state["A"].float()
+# # b = state["b"].float()
+# num_edges = state["num_edges"]
+# edge_list = state["edge_list"]
+# edge_list_torch = torch.tensor(edge_list)
+
+# # A = A.to(device)
+# # b = b.to(device)
+
+
+# PertOpt_net = Pert_Warcraft_Net(edges=edge_list, num_edges=num_edges, m=m, device='cpu')
+# PertOpt_net.to('cpu')
+
+# # # Train
+# print('\n-------------------------------------------- TRAINING PertOpt Warcraft GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
+
+# start_time = time.time()
+# best_params_PertOpt, val_loss_hist_PertOpt, val_acc_hist_PertOpt, test_loss_PertOpt, test_acc_PertOpt, train_time_PertOpt = trainer_warcraft(PertOpt_net, train_dataset, val_dataset, test_dataset, 
+#                                  grid_size, max_epochs, init_lr, edge_list, 
+#                                  use_scheduler=False, device='cpu', 
+#                                  train_batch_size=train_batch_size, 
+#                                  test_batch_size=test_batch_size, 
+#                                  graph_type='V')
+# end_time = time.time()
+# print('\n time to train PertOpt GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
+
+# state = {
+#         'val_loss_hist_PertOpt': val_loss_hist_PertOpt,
+#         'val_acc_hist_PertOpt': val_acc_hist_PertOpt,
+#         'test_loss_PertOpt': test_loss_PertOpt,
+#         'test_acc_PertOpt': test_acc_PertOpt,
+#         'train_time_PertOpt': train_time_PertOpt
+#         }
+
+# # Save weights
+# torch.save(best_params_PertOpt, './src/warcraft/saved_weights/'+'PertOpt_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+
+# ## Save Histories
+# torch.save(state, './src/warcraft/results/'+'PertOpt_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+
+
 # ---------------------------------------------------------------
-# ------------------------ Train PertOpt ------------------------
+# ------------------------ Train BB ------------------------
 # ---------------------------------------------------------------
 
 ## Load data
@@ -143,32 +199,32 @@ edge_list_torch = torch.tensor(edge_list)
 # b = b.to(device)
 
 
-PertOpt_net = Pert_Warcraft_Net(edges=edge_list, num_edges=num_edges, m=m, device='cpu')
-PertOpt_net.to('cpu')
+BB_net = BB_Warcraft_Net(edges=edge_list, num_edges=num_edges, m=m, device=device)
+BB_net = BB_net.to(device)
 
 # # Train
-print('\n-------------------------------------------- TRAINING PertOpt Warcraft GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
+print('\n-------------------------------------------- TRAINING Blackbox Backprop Warcraft GRID ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
 
 start_time = time.time()
-best_params_PertOpt, val_loss_hist_PertOpt, val_acc_hist_PertOpt, test_loss_PertOpt, test_acc_PertOpt, train_time_PertOpt = trainer_warcraft(PertOpt_net, train_dataset, val_dataset, test_dataset, 
+best_params_BB, val_loss_hist_BB, val_acc_hist_BB, test_loss_BB, test_acc_BB, train_time_BB = trainer_warcraft(BB_net, train_dataset, val_dataset, test_dataset, 
                                  grid_size, max_epochs, init_lr, edge_list, 
-                                 use_scheduler=False, device='cpu', 
+                                 use_scheduler=False, device=device, 
                                  train_batch_size=train_batch_size, 
                                  test_batch_size=test_batch_size, 
                                  graph_type='V')
 end_time = time.time()
-print('\n time to train PertOpt GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
+print('\n time to train BB GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
 state = {
-        'val_loss_hist_PertOpt': val_loss_hist_PertOpt,
-        'val_acc_hist_PertOpt': val_acc_hist_PertOpt,
-        'test_loss_PertOpt': test_loss_PertOpt,
-        'test_acc_PertOpt': test_acc_PertOpt,
-        'train_time_PertOpt': train_time_PertOpt
+        'val_loss_hist_BB': val_loss_hist_BB,
+        'val_acc_hist_BB': val_acc_hist_BB,
+        'test_loss_BB': test_loss_BB,
+        'test_acc_BB': test_acc_BB,
+        'train_time_BB': train_time_BB
         }
 
 # Save weights
-torch.save(best_params_PertOpt, './src/warcraft/saved_weights/'+'PertOpt_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+torch.save(best_params_BB, './src/warcraft/saved_weights/'+'BB_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
 
 ## Save Histories
-torch.save(state, './src/warcraft/results/'+'PertOpt_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')
+torch.save(state, './src/warcraft/results/'+'BB_results_'+str(grid_size) + '-by-' + str(grid_size) + '.pth')

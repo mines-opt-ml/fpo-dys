@@ -247,14 +247,19 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
     while epoch <= max_epochs:
         
         # training step
-        for terrain_batch, path_batch_edge, _, _ in train_loader:
+        for terrain_batch, path_batch_edge, path_batch_vertex, _ in train_loader:
 
             terrain_batch = terrain_batch.to(device)
-            path_batch_edge =path_batch_edge.to(device)
+            path_batch_edge = path_batch_edge.to(device)
+            path_batch_vertex = path_batch_vertex.to(device)
             net.train()
             optimizer.zero_grad()
             path_pred = net(terrain_batch)
-            loss = criterion(path_pred, path_batch_edge)
+
+            if graph_type=='E':
+                loss = criterion(path_pred, path_batch_edge)
+            else:
+                loss = criterion(path_pred, path_batch_vertex)
             train_loss_ave = 0.95*train_loss_ave + 0.05*loss.item()
             loss.backward()
             optimizer.step()
