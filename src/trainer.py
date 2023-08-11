@@ -206,11 +206,11 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
     # print initial test loss in :7.3e format
     print('INITIAL VALUES:')
     print('val_loss: ', "{:5.2e}".format(val_loss), 
-          ' | val_acc: ', "{:<4.3g}".format(val_acc), 
-          ' | : ', "{:5.2e}".format(val_cost_pred),
+          ' | val_acc: ', "{:<4.3f}".format(val_acc), 
+          ' | val_cost_pred: ', "{:5.2e}".format(val_cost_pred),
           ' | true val_cost: ', "{:5.2e}".format(val_cost_true),
           'test_loss: ', "{:5.2e}".format(test_loss), 
-          ' | test_acc: ', "{:<4.3g}".format(test_acc),
+          ' | test_acc: ', "{:<4.3f}".format(test_acc),
           ' | test_cost_pred: ', "{:5.2e}".format(test_cost_pred),
           ' | true test_cost: ', "{:5.2e}".format(test_cost_true))
 
@@ -257,8 +257,9 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
         
         print('epoch: ', epoch, '| ave_tr_loss: ', "{:5.2e}".format(train_loss_ave), 
               '| val_loss: ', "{:5.2e}".format(val_loss), 
-              '| val_acc.: ', "{:<4.3g}".format(val_acc), 
-              '| val_cost_pred: ', "{:5.2e}".format(val_cost_pred), 
+              '| val_acc.: ', "{:<4.3f}".format(val_acc), 
+              '| val_cost_pred: ', "{:5.2e}".format(val_cost_pred),
+              '| val_cost_true:', "{:5.2e}".format(val_cost_true),
               '| lr: ', "{:5.2e}".format(optimizer.param_groups[0]['lr']), 
               '| time: ', "{:<15f}".format(epoch_time))
 
@@ -295,7 +296,7 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
             # pred_batch_edge_form=True means path_pred_edge is in edge form.
             test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
 
-    print('final test loss is ', "{:5.2e}".format(test_loss), ' | final test acc. is ', "{:<4.3g}".format(test_acc), ' | final test cost pred is ', "{:5.2e}".format(test_cost_pred), ' | final test cost true is ', "{:5.2e}".format(test_cost_true))
+    print('final test loss is ', "{:5.2e}".format(test_loss), ' | final test acc. is ', "{:<4.3f}".format(test_acc), ' | final test cost pred is ', "{:5.2e}".format(test_cost_pred), ' | final test cost true is ', "{:5.2e}".format(test_cost_true))
 
     return best_params, val_loss_hist, val_acc_hist, test_loss, test_acc, train_time
     
