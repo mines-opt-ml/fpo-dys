@@ -16,7 +16,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNet, BB_ShortestPathNet
 from src.models import DYS_Warcraft_Net, Pert_Warcraft_Net
 from src.trainer import trainer
-from src.utils import edge_to_node, node_to_edge
+from src.utils import edge_to_node, node_to_edge, compute_accuracy
 
 class test_edge_to_node(unittest.TestCase):
 
@@ -33,10 +33,9 @@ class test_edge_to_node(unittest.TestCase):
         state = torch.load(data_path)
 
         ## Extract data from state
-        train_dataset_e = state['train_dataset_e']
-        test_dataset_e = state['test_dataset_e']
-        train_dataset_v = state['train_dataset_v']
-        test_dataset_v = state['test_dataset_v']
+        train_dataset = state["train_dataset"]
+        val_dataset = state["val_dataset"]
+        test_dataset = state["test_dataset"]
 
         self.grid_size = state["m"]
         A = state["A"].float()
@@ -47,9 +46,8 @@ class test_edge_to_node(unittest.TestCase):
 
         self.A = A.to(self.device)
         self.b = b.to(self.device)
-        self.n_samples = len(test_dataset_e)
-        self.d_edge, self.path_edge = test_dataset_e[0:self.n_samples]
-        self.d_vertex, self.path_vertex = test_dataset_v[0:self.n_samples]
+        self.n_samples = 10
+        self.d_edge, self.path_edge, self.path_vertex, self.costs = test_dataset[0:self.n_samples]
 
         self.dys_net = DYS_Warcraft_Net(self.A, self.b, self.edge_list, self.num_edges, self.device)
         self.dys_net.to(self.device)
@@ -70,7 +68,7 @@ class test_edge_to_node(unittest.TestCase):
 
         print('\n\n-------------- edge_to_node and node_to_edge tests passed --------------\n\n')
 
-    def test_Amat_and_bvec(self):
+    def test_A_matrix_and_b_vector(self):
 
         for i in range(self.A.shape[0]):
             self.assertTrue(torch.sum(self.A[:,i])==0)
@@ -79,6 +77,20 @@ class test_edge_to_node(unittest.TestCase):
         self.assertTrue(self.b[0]==-1. and self.b[-1]==1.)
 
         print('\n\n-------------- A matrix and b vector tests passed --------------\n\n')
+
+    def test_compute_accuracy(self):
+
+        accuracy, cost_pred, true_cost = compute_accuracy(self.path_edge, self.path_vertex, self.costs, self.edge_list, self.grid_size, device=self.device)
+        self.assertTrue(accuracy == 1.)
+        print('true path accuracy = ', accuracy, ', cost_pred = ', cost_pred, ', true_cost = ', true_cost)
+
+        rand_path_edge = torch.randn(self.path_edge.shape)
+        rand_acc, cost_pred, true_cost = compute_accuracy(rand_path_edge, self.path_vertex, self.costs, self.edge_list, self.grid_size, device=self.device)
+        print('random path accuracy = ', rand_acc, ', cost_pred = ', cost_pred, ', true_cost = ', true_cost)
+        self.assertTrue(rand_acc < 1.)
+        
+
+        print('\n\n-------------- compute_accuracy tests passed --------------\n\n')
 
     def test_dys_net(self):
         

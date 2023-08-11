@@ -16,6 +16,7 @@ def round_coordinates(vertex_name):
 
 ## Utility for converting path in edge list format to node list format
 def edge_to_node(path, edge_list, m, device):
+  # Note: takes one sample path at a time!? 
   node_map = torch.zeros((m,m), device=device)
   node_map[0,0] = 1.
   node_map[-1,-1] = 1.
@@ -72,6 +73,32 @@ https://github.com/google-research/google-research/blob/master/perturbations/exp
           if (curr_vertex[0] + offset[0],curr_vertex[1] + offset[1]) != curr_vertex:
             neighbors.append((curr_vertex[0] + offset[0],curr_vertex[1] + offset[1]))
   return neighbors
+
+def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, device='cpu', pred_batch_edge_form=True):
+  '''
+  Simple utility for determining what fraction of predicted paths in pred_batch have the same (optimal) costs as the
+  truth paths in true_batch. More sophisticated approaches could use Dijkstra's algorithm, but we find this suffices.
+  Assumes true_cost and true_batch are in vertex form. But pred_batch might be in edge_form depending on the solver.
+  '''
+   
+  score = 0.
+  batch_size = pred_batch.shape[0]
+  for i in range(batch_size):
+    pred_batch_i = edge_to_node(pred_batch[i,:], edge_list, grid_size, device)
+    
+    cost_pred = torch.sum(true_cost[i,:,:] * pred_batch_i)
+    cost_true = torch.sum(true_cost[i,:,:] * true_batch[i,:,:]) # assumes true batch is in vertex mode 
+
+    assert(true_cost[i,:,:].shape==(grid_size,grid_size))
+    assert(pred_batch_i.shape==true_cost[i,:,:].shape)
+    assert( true_batch[i,:,:].shape==true_cost[i,:,:].shape)
+
+    if torch.abs(cost_pred - cost_true) < 1e-2:
+      score += 1.
+
+  return score/batch_size, cost_pred, cost_true
+
+
 
 def compute_perfect_path_acc(pred_batch, true_batch):
   '''

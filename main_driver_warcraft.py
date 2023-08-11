@@ -4,7 +4,7 @@ from src.models import ShortestPathNet, Cvx_ShortestPathNet, Pert_ShortestPathNe
 from src.models import DYS_Warcraft_Net, Pert_Warcraft_Net
 import matplotlib.pyplot as plt
 import time as time
-from src.trainer import trainer
+from src.trainer import trainer_warcraft
 import numpy as np
 import torch
 import os
@@ -14,8 +14,8 @@ device = 'cuda:2'
 print('device: ', device)
 
 ## Some fixed hyperparameters
-max_epochs = 20
-init_lr = 5e-5 # initial learning rate. We're using a scheduler. 
+max_epochs = 100
+init_lr = 1e-5 # initial learning rate. We're using a scheduler. 
 torch.manual_seed(0)
 
 # check that directory to save data exists 
@@ -60,10 +60,10 @@ data_path = base_data_path + 'Warcraft_training_data'+str(grid_size)+'.pth'
 state = torch.load(data_path)
 
 ## Extract data from state
-train_dataset_e = state['train_dataset_e']
-test_dataset_e = state['test_dataset_e']
-train_dataset_v = state['train_dataset_v']
-test_dataset_v = state['test_dataset_v']
+train_dataset = state['train_dataset']
+val_dataset = state['val_dataset']
+test_dataset = state['test_dataset']
+
 
 m= state["m"]
 A = state["A"].float()
@@ -79,27 +79,38 @@ b = b.to(device)
 DYS_net = DYS_Warcraft_Net(A, b, edge_list, num_edges=num_edges, device=device)
 DYS_net.to(device)
 
+train_batch_size = 1012
+test_batch_size = 1000
+
 # Train
-print('\n--------------------------------- ----------- TRAINING DYS Warcraft Grid ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
+print('\n-------------------------------------------- TRAINING DYS Warcraft Grid ' + str(grid_size) + '-by-' + str(grid_size) + ' --------------------------------------------')
 start_time = time.time()
-tl_DYS, tt_DYS, ta_DYS = trainer(DYS_net, train_dataset_e, test_dataset_e, grid_size,
-                                max_epochs, init_lr, graph_type='E', edge_list = edge_list, max_time=np.inf, device=device, train_batch_size=256, test_batch_size=256)
+best_params_DYS, val_loss_hist_DYS, val_acc_hist_DYS, test_loss_DYS, test_acc_DYS, train_time_DYS = trainer_warcraft(DYS_net, train_dataset, val_dataset, test_dataset, 
+                                 grid_size, max_epochs, init_lr, edge_list, 
+                                 use_scheduler=False, device=device, 
+                                 train_batch_size=train_batch_size, 
+                                 test_batch_size=test_batch_size)
+
 end_time = time.time()
 print('\n time to train DYS GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
 ## Store data
-tl_trained_DYS = tl_DYS
-tt_trained_DYS = tt_DYS
-ta_trained_DYS = ta_DYS
+# best_params_DYS
+# tl_trained_DYS = test_loss_DYS
+# tt_trained_DYS = train_time_DYS
+# ta_trained_DYS = test_acc_DYS
 
-print('length tl_trained_DYS = ', len(tl_trained_DYS))
-print('length tt_trained_DYS = ', len(tt_trained_DYS))
-print('length ta_trained_DYS = ', len(ta_trained_DYS))
+# print('length tl_trained_DYS = ', len(tl_trained_DYS))
+# print('length tt_trained_DYS = ', len(tt_trained_DYS))
+# print('length ta_trained_DYS = ', len(ta_trained_DYS))
 
 state = {
-        'tl_trained_DYS': tl_trained_DYS,
-        'tt_trained_DYS': tt_trained_DYS,
-        'ta_trained_DYS': ta_trained_DYS,
+        'best_params_DYS': best_params_DYS,
+        'val_loss_hist_DYS': val_loss_hist_DYS,
+        'val_acc_hist_DYS': val_acc_hist_DYS,
+        'test_loss_DYS': test_loss_DYS,
+        'test_acc_DYS': test_acc_DYS,
+        'train_time_DYS': train_time_DYS
         }
 
 # Save weights
