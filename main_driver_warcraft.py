@@ -154,7 +154,8 @@ best_params_PertOpt, val_loss_hist_PertOpt, val_acc_hist_PertOpt, test_loss_Pert
                                  grid_size, max_epochs, init_lr, edge_list, 
                                  use_scheduler=False, device='cpu', 
                                  train_batch_size=train_batch_size, 
-                                 test_batch_size=test_batch_size)
+                                 test_batch_size=test_batch_size, 
+                                 graph_type='V')
 end_time = time.time()
 print('\n time to train PertOpt GRID ' + str(grid_size) + '-by-' + str(grid_size), ' = ', end_time-start_time, ' seconds')
 
