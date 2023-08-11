@@ -80,13 +80,48 @@ class test_edge_to_node(unittest.TestCase):
 
     def test_compute_accuracy(self):
 
-        accuracy, cost_pred, true_cost = compute_accuracy(self.path_edge, self.path_vertex, self.costs, self.edge_list, self.grid_size, device=self.device)
+        accuracy, cost_pred, true_cost = compute_accuracy(self.path_edge, 
+                                                          self.path_vertex, 
+                                                          self.costs, 
+                                                          self.edge_list, 
+                                                          self.grid_size, 
+                                                          device=self.device, 
+                                                          graph_type='E')
         self.assertTrue(accuracy == 1.)
-        print('true path accuracy = ', accuracy, ', cost_pred = ', cost_pred, ', true_cost = ', true_cost)
+        print('true path (edge) accuracy = ', accuracy, ', cost_pred = ', cost_pred, ', true_cost = ', true_cost)
+
+        accuracy, cost_pred, true_cost = compute_accuracy(self.path_vertex, 
+                                                          self.path_vertex, 
+                                                          self.costs, 
+                                                          self.edge_list, 
+                                                          self.grid_size, 
+                                                          device=self.device, 
+                                                          graph_type='V')
+        self.assertTrue(accuracy == 1.)
+        print('true path (vertex) accuracy = ', accuracy, ', cost_pred = ', cost_pred, ', true_cost = ', true_cost)
 
         rand_path_edge = torch.randn(self.path_edge.shape)
-        rand_acc, cost_pred, true_cost = compute_accuracy(rand_path_edge, self.path_vertex, self.costs, self.edge_list, self.grid_size, device=self.device)
-        print('random path accuracy = ', rand_acc, ', cost_pred = ', cost_pred, ', true_cost = ', true_cost)
+        rand_acc, cost_pred, true_cost = compute_accuracy(rand_path_edge, 
+                                                          self.path_vertex, 
+                                                          self.costs, 
+                                                          self.edge_list, 
+                                                          self.grid_size, 
+                                                          device=self.device, 
+                                                          graph_type='E')
+        
+        print('random path (edge) accuracy = ', rand_acc, ', cost_pred = ', cost_pred, ', true_cost = ', true_cost)
+        self.assertTrue(rand_acc < 1.)
+
+        rand_path_vertex = torch.randn(self.path_vertex.shape)
+        rand_acc, cost_pred, true_cost = compute_accuracy(rand_path_vertex, 
+                                                          self.path_vertex, 
+                                                          self.costs, 
+                                                          self.edge_list, 
+                                                          self.grid_size, 
+                                                          device=self.device, 
+                                                          graph_type='V')
+        
+        print('random path (vertex) accuracy = ', rand_acc, ', cost_pred = ', cost_pred, ', true_cost = ', true_cost)
         self.assertTrue(rand_acc < 1.)
         
 

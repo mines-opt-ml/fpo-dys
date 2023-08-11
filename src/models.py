@@ -208,7 +208,7 @@ class Pert_Warcraft_Net(nn.Module):
         self.fc_final = nn.Linear(in_features=64*24*24, out_features=self.m**2)
 
         ## Perturbed Differentiable Optimization layer
-        dijkstra = Dijkstra(euclidean_weight=True,four_neighbors=True)
+        dijkstra = Dijkstra(grid_size=self.m, euclidean_weight=True,four_neighbors=False)
         self.dijkstra = dijkstra
         self.pert_dijkstra = perturbations.perturbed(dijkstra,
                                       num_samples=3,

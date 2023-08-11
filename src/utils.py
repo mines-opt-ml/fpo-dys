@@ -74,7 +74,7 @@ https://github.com/google-research/google-research/blob/master/perturbations/exp
             neighbors.append((curr_vertex[0] + offset[0],curr_vertex[1] + offset[1]))
   return neighbors
 
-def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, device='cpu', pred_batch_edge_form=True):
+def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, device='cpu', graph_type='E'):
   '''
   Simple utility for determining what fraction of predicted paths in pred_batch have the same (optimal) costs as the
   truth paths in true_batch. More sophisticated approaches could use Dijkstra's algorithm, but we find this suffices.
@@ -84,7 +84,11 @@ def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, de
   score = 0.
   batch_size = pred_batch.shape[0]
   for i in range(batch_size):
-    pred_batch_i = edge_to_node(pred_batch[i,:], edge_list, grid_size, device)
+
+    pred_batch_i = pred_batch[i,:]
+
+    if graph_type=='E':
+      pred_batch_i = edge_to_node(pred_batch_i, edge_list, grid_size, device)
     
     cost_pred = torch.sum(true_cost[i,:,:] * pred_batch_i)
     cost_true = torch.sum(true_cost[i,:,:] * true_batch[i,:,:]) # assumes true batch is in vertex mode 
