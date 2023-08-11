@@ -204,14 +204,29 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
         path_batch_vertex = path_batch_vertex.to(device)
         costs_batch = costs_batch.to(device)
 
-        path_pred_edge = net(terrain_batch)
+        path_pred = net(terrain_batch)
 
-        test_loss = criterion(path_batch_edge, path_pred_edge).item()
-        # val_loss_hist.append(val_loss)
-
-        # compute accuracy based on optimal cost. 
-        # pred_batch_edge_form=True means path_pred_edge is in edge form.
-        test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
+        if graph_type=='E':
+            test_loss = criterion(path_batch_edge, path_pred).item()
+            # compute accuracy based on optimal cost. 
+            # graph_type='E' means path_pred_edge is in edge form.
+            test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred, 
+                                                                     path_batch_vertex, 
+                                                                     costs_batch, 
+                                                                     edge_list, 
+                                                                     grid_size, 
+                                                                     device, 
+                                                                     graph_type='E')
+        else: 
+            test_loss = criterion(path_batch_vertex, path_pred).item()
+            test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred,
+                                                                     path_batch_vertex,
+                                                                     costs_batch,
+                                                                     edge_list,
+                                                                     grid_size,
+                                                                     device,
+                                                                     graph_type='V')
+            
         
     ## Train!
     train_start_time = time.time()
@@ -256,15 +271,31 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
             path_batch_vertex = path_batch_vertex.to(device)
             costs_batch = costs_batch.to(device)
 
-            path_pred_edge = net(terrain_batch)
+            path_pred = net(terrain_batch)
 
-            val_loss = criterion(path_batch_edge, path_pred_edge).item()
-            val_loss_hist.append(val_loss)
-
+        if graph_type=='E':
+            val_loss = criterion(path_batch_edge, path_pred).item()
             # compute accuracy based on optimal cost. 
-            # pred_batch_edge_form=True means path_pred_edge is in edge form.
-            val_acc, val_cost_pred, val_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
-            val_acc_hist.append(val_acc)
+            # graph_type='E' means path_pred_edge is in edge form.
+            val_acc, val_cost_pred, val_cost_true = compute_accuracy(path_pred, 
+                                                                     path_batch_vertex, 
+                                                                     costs_batch, 
+                                                                     edge_list, 
+                                                                     grid_size, 
+                                                                     device, 
+                                                                     graph_type='E')
+        else: 
+            val_loss = criterion(path_batch_vertex, path_pred).item()
+            val_acc, val_cost_pred, val_cost_true = compute_accuracy(path_pred,
+                                                                     path_batch_vertex,
+                                                                     costs_batch,
+                                                                     edge_list,
+                                                                     grid_size,
+                                                                     device,
+                                                                     graph_type='V')
+            
+        val_acc_hist.append(val_acc)
+        val_cost_pred_hist.append(val_cost_pred)
         
         if val_acc > best_acc:
             best_acc = val_acc
@@ -297,19 +328,34 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
     net.load_state_dict(best_params)
     net.eval()
     for terrain_batch, path_batch_edge, path_batch_vertex, costs_batch in test_loader:
-            
-            terrain_batch = terrain_batch.to(device)
-            path_batch_edge = path_batch_edge.to(device)
-            path_batch_vertex = path_batch_vertex.to(device)
-            costs_batch = costs_batch.to(device)
-    
-            path_pred_edge = net(terrain_batch)
-    
-            test_loss = criterion(path_batch_edge, path_pred_edge).item()
-    
+
+        terrain_batch = terrain_batch.to(device)
+        path_batch_edge = path_batch_edge.to(device)
+        path_batch_vertex = path_batch_vertex.to(device)
+        costs_batch = costs_batch.to(device)
+
+        path_pred = net(terrain_batch)
+
+        if graph_type=='E':
+            test_loss = criterion(path_batch_edge, path_pred).item()
             # compute accuracy based on optimal cost. 
-            # pred_batch_edge_form=True means path_pred_edge is in edge form.
-            test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
+            # graph_type='E' means path_pred_edge is in edge form.
+            test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred, 
+                                                                     path_batch_vertex, 
+                                                                     costs_batch, 
+                                                                     edge_list, 
+                                                                     grid_size, 
+                                                                     device, 
+                                                                     graph_type='E')
+        else: 
+            test_loss = criterion(path_batch_vertex, path_pred).item()
+            test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred,
+                                                                     path_batch_vertex,
+                                                                     costs_batch,
+                                                                     edge_list,
+                                                                     grid_size,
+                                                                     device,
+                                                                     graph_type='V')
 
     print('final test loss is ', "{:5.2e}".format(test_loss), ' | final test acc. is ', "{:<4.3f}".format(test_acc), ' | final test cost pred is ', "{:5.2e}".format(test_cost_pred), ' | final test cost true is ', "{:5.2e}".format(test_cost_true))
 
