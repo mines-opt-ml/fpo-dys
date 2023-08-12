@@ -60,12 +60,12 @@ class DYS_opt_net(nn.Module, ABC):
       '''
       pass
 
-    # @abstractmethod
-    # def test_time_forward(self, d):
-    #    '''
-    #    Specify test time behaviour, e.g. use a combinatorial solver on the forward pass.
-    #    '''
-    #    pass
+    @abstractmethod
+    def test_time_forward(self, d):
+       '''
+       Specify test time behaviour, e.g. use a combinatorial solver on the forward pass.
+       '''
+       pass
 
 
     def apply_DYS(self, z, w): 
@@ -81,11 +81,13 @@ class DYS_opt_net(nn.Module, ABC):
 
 
     def forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
-                depth_warning=False): 
+                depth_warning=True): 
       """
       w are the parameters. To be passed to the operator F.
       """
-
+      if not self.training:
+         return self.test_time_forward(d)
+      
       with torch.no_grad():
           w = self.data_space_forward(d)
           self.depth = 0.0

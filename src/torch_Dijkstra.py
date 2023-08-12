@@ -28,7 +28,7 @@ class Dijkstra:
   def valid_move(self, x, y, off_x, off_y):
     size = np.sum(np.abs([off_x, off_y]))
     return ((size > 0) and
-            (not self.four_neighbors or size == 1) and
+            (not self.four_neighbors or np.abs(size - 1)< 0.01) and
             self.inside(x + off_x, y + off_y))
 
   def around(self, x, y):
@@ -65,7 +65,6 @@ class Dijkstra:
       _, (x, y) = heapq.heappop(self.queue)
       if (x, y) in self.visits:
         continue
-
       for nx, ny in self.around(x, y):
         if (nx, ny) in self.visits:
           continue
@@ -102,7 +101,7 @@ class Dijkstra:
       return torch.from_numpy(self.path).float()
 
   def run_batch(self, tensor, Gen_Data):
-    return torch.stack([self.run_single(tensor[i], Gen_Data)
+    return torch.stack([self.run_single(tensor[i,:], Gen_Data)
                      for i in range(tensor.shape[0])],
                     axis=0)
 

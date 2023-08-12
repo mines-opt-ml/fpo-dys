@@ -161,15 +161,26 @@ class DYS_Warcraft_Net(DYS_opt_net):
     self.fc_final = nn.Linear(in_features=64*24*24, out_features=num_edges)
 
     # Initialize exact solver
-    # dijkstra = Dijkstra(vertex_mode=False, edge_list = edges, euclidean_weight=True,four_neighbors=False)
-    # self.dijkstra = dijkstra
+    dijkstra = Dijkstra(grid_size=12, vertex_mode=False, edge_list = edges, euclidean_weight=True,four_neighbors=False)
+    self.dijkstra = dijkstra
+
+    ## Compute geometric edge length multiplier
+    edge_lengths = []
+    for edge in edges:
+      v1 = torch.FloatTensor(edge[0])
+      v2 = torch.FloatTensor(edge[1])
+      edge_length = torch.sqrt((v1[0] - v2[0])**2 + (v1[1] - v2[1])**2)
+      edge_lengths.append(edge_length)
+
+    self.edge_lengths = torch.ones(len(edges)).to(device)# torch.FloatTensor(edge_lengths).to(device)
+
 
 
   def F(self, z, cost_vec):
     '''
     gradient of cost vector with a little bit of regularization.
     '''
-    return cost_vec + 0.0005*z
+    return self.edge_lengths*cost_vec + 0.005*z
 
   def data_space_forward(self, d):
 
@@ -183,11 +194,11 @@ class DYS_Warcraft_Net(DYS_opt_net):
 
     return cost_vec.view(batch_size,-1) # size = batch_size x num_edges
   
-  # def test_time_forward(self, d):
-  #     cost_vec = self.data_space_forward(d)
-  #     path = self.dijkstra(cost_vec, batch_mode=True)
-  #     path = node_to_edge(path, self.edges).to(self.device)
-  #     return path
+  def test_time_forward(self, d):
+      cost_vec = self.data_space_forward(d)
+      path = self.dijkstra(cost_vec, batch_mode=True)
+      path = node_to_edge(path, self.edges).to(self.device)
+      return path
   
 
 ## Create NN using perturbed differentiable optimization

@@ -137,7 +137,7 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
 
     ## Training setup
     train_loader = DataLoader(dataset=train_dataset, batch_size=train_batch_size,
-                                  shuffle=True)
+                                  shuffle=False)
     val_loader = DataLoader(dataset=val_dataset, batch_size=test_batch_size, 
                             shuffle=False)
     test_loader = DataLoader(dataset=test_dataset, batch_size=test_batch_size,
@@ -148,7 +148,7 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
         scheduler = ReduceLROnPlateau(optimizer, 'min')
     else:
         scheduler = StepLR(optimizer, step_size=max_epochs, gamma=1.0)
-    criterion = nn.MSELoss()
+    criterion = nn.BCELoss() # nn.MSELoss()
 
     ## Initialize arrays that will be returned.
     val_loss_hist= []
@@ -164,40 +164,43 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
 
     ## Compute initial loss
     net.eval()
+    batch_counter = 0
     for terrain_batch, path_batch_edge, path_batch_vertex, costs_batch in val_loader:
+        if batch_counter < 10:
+            terrain_batch = terrain_batch.to(device)
+            path_batch_edge = path_batch_edge.to(device)
+            path_batch_vertex = path_batch_vertex.to(device)
+            costs_batch = costs_batch.to(device)
 
-        terrain_batch = terrain_batch.to(device)
-        path_batch_edge = path_batch_edge.to(device)
-        path_batch_vertex = path_batch_vertex.to(device)
-        costs_batch = costs_batch.to(device)
+            path_pred_edge = net(terrain_batch)
 
-        path_pred_edge = net(terrain_batch)
+            val_loss = criterion(path_pred_edge, path_batch_edge).item()
+            val_loss_hist.append(val_loss)
 
-        val_loss = criterion(path_batch_edge, path_pred_edge).item()
-        val_loss_hist.append(val_loss)
+            # compute accuracy based on optimal cost. 
+            # pred_batch_edge_form=True means path_pred_edge is in edge form.
+            val_acc, val_cost_pred, val_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
+            val_acc_hist.append(val_acc)
+            val_cost_pred_hist.append(val_cost_pred)
+            batch_counter += 1
 
-        # compute accuracy based on optimal cost. 
-        # pred_batch_edge_form=True means path_pred_edge is in edge form.
-        val_acc, val_cost_pred, val_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
-        val_acc_hist.append(val_acc)
-        val_cost_pred_hist.append(val_cost_pred)
-
+    batch_counter = 0
     for terrain_batch, path_batch_edge, path_batch_vertex, costs_batch in test_loader:
+        if batch_counter < 1:
+            terrain_batch = terrain_batch.to(device)
+            path_batch_edge = path_batch_edge.to(device)
+            path_batch_vertex = path_batch_vertex.to(device)
+            costs_batch = costs_batch.to(device)
 
-        terrain_batch = terrain_batch.to(device)
-        path_batch_edge = path_batch_edge.to(device)
-        path_batch_vertex = path_batch_vertex.to(device)
-        costs_batch = costs_batch.to(device)
+            path_pred_edge = net(terrain_batch)
 
-        path_pred_edge = net(terrain_batch)
+            test_loss = criterion(path_pred_edge, path_batch_edge).item()
+            # val_loss_hist.append(val_loss)
 
-        test_loss = criterion(path_batch_edge, path_pred_edge).item()
-        # val_loss_hist.append(val_loss)
-
-        # compute accuracy based on optimal cost. 
-        # pred_batch_edge_form=True means path_pred_edge is in edge form.
-        test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
-        
+            # compute accuracy based on optimal cost. 
+            # pred_batch_edge_form=True means path_pred_edge is in edge form.
+            test_acc, test_cost_pred, test_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
+            batch_counter += 1
     ## Train!
     train_start_time = time.time()
     epoch=0
@@ -217,13 +220,14 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
         
         # training step
         for terrain_batch, path_batch_edge, _, _ in train_loader:
-
             terrain_batch = terrain_batch.to(device)
             path_batch_edge =path_batch_edge.to(device)
             net.train()
             optimizer.zero_grad()
             path_pred = net(terrain_batch)
+            # print(path_pred[2,:])
             loss = criterion(path_pred, path_batch_edge)
+            print('Train loss is '+ str(loss.item()))
             train_loss_ave = 0.95*train_loss_ave + 0.05*loss.item()
             loss.backward()
             optimizer.step()
@@ -233,22 +237,30 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
 
         # Evaluate progress on val set. (note one batch is entire dataset)
         net.eval()
+        batch_counter = 0
+        val_acc = 0
+        val_loss = 0
         for terrain_batch, path_batch_edge, path_batch_vertex, costs_batch in val_loader:
+            if batch_counter < 1:
+                terrain_batch = terrain_batch.to(device)
+                path_batch_edge = path_batch_edge.to(device)
+                path_batch_vertex = path_batch_vertex.to(device)
+                costs_batch = costs_batch.to(device)
 
-            terrain_batch = terrain_batch.to(device)
-            path_batch_edge = path_batch_edge.to(device)
-            path_batch_vertex = path_batch_vertex.to(device)
-            costs_batch = costs_batch.to(device)
+                path_pred_edge = net(terrain_batch)
 
-            path_pred_edge = net(terrain_batch)
+                val_loss_batch = criterion(path_pred_edge, path_batch_edge).item()
+                val_loss += val_loss_batch
+                # compute accuracy based on optimal cost. 
+                # pred_batch_edge_form=True means path_pred_edge is in edge form.
+                val_acc_batch, val_cost_pred, val_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
+                val_acc  += val_acc_batch
+                val_acc_hist.append(val_acc)
+                batch_counter += 1
 
-            val_loss = criterion(path_batch_edge, path_pred_edge).item()
-            val_loss_hist.append(val_loss)
-
-            # compute accuracy based on optimal cost. 
-            # pred_batch_edge_form=True means path_pred_edge is in edge form.
-            val_acc, val_cost_pred, val_cost_true = compute_accuracy(path_pred_edge, path_batch_vertex, costs_batch, edge_list, grid_size, device, pred_batch_edge_form=True)
-            val_acc_hist.append(val_acc)
+        print(val_acc)
+        scheduler.step(val_loss)
+        val_loss_hist.append(val_loss)
         
         if val_acc > best_acc:
             best_acc = val_acc
@@ -280,7 +292,6 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
     net.load_state_dict(best_params)
     net.eval()
     for terrain_batch, path_batch_edge, path_batch_vertex, costs_batch in test_loader:
-            
             terrain_batch = terrain_batch.to(device)
             path_batch_edge = path_batch_edge.to(device)
             path_batch_vertex = path_batch_vertex.to(device)
@@ -288,7 +299,7 @@ def trainer_warcraft(net, train_dataset, val_dataset, test_dataset,
     
             path_pred_edge = net(terrain_batch)
     
-            test_loss = criterion(path_batch_edge, path_pred_edge).item()
+            test_loss = criterion(path_pred_edge, path_batch_edge).item()
     
             # compute accuracy based on optimal cost. 
             # pred_batch_edge_form=True means path_pred_edge is in edge form.

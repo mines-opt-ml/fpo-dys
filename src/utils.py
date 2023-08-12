@@ -4,10 +4,18 @@ Daniel McKenzie
 November 2022
 '''
 import torch
+import torch.nn as nn 
 import itertools
 from torch.utils.data import TensorDataset
 from torch.utils.data.dataset import random_split, Subset
 from src.torch_Dijkstra import Dijkstra
+
+## Custom initialization
+def uniform_init(m):
+    if hasattr(m, 'weight') and m.weight is not None:
+        nn.init.uniform_(m.weight, 1e-4, 1e-2)
+    if hasattr(m, 'bias') and m.bias is not None:
+        m.bias.data.fill_(0.01)
 
 ## Small utility for rounding coordinates of points
 def round_coordinates(vertex_name):
@@ -82,21 +90,34 @@ def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, de
   '''
    
   score = 0.
+  cost_pred_batch = 0.
+  cost_true_batch = 0.
   batch_size = pred_batch.shape[0]
+  pred_batch_prev = torch.zeros(12,12).to(device)
   for i in range(batch_size):
     pred_batch_i = edge_to_node(pred_batch[i,:], edge_list, grid_size, device)
-    
+    print('\n Predicted path:\n ')
+    print(pred_batch_i)
+    pred_batch_prev = pred_batch_i
+    print('\n')
     cost_pred = torch.sum(true_cost[i,:,:] * pred_batch_i)
     cost_true = torch.sum(true_cost[i,:,:] * true_batch[i,:,:]) # assumes true batch is in vertex mode 
-
+    # print('Cost matrix is ')
+    # print(true_cost[i,:,:] * pred_batch_i)
+    # print('\n true path is:\n ')
+    # print(true_batch[i,:,:])
+    # print('\n')
+    print('\n cost predicted is '+ str(cost_pred.item())+ ' and true cost is '+ str(cost_true.item()))
     assert(true_cost[i,:,:].shape==(grid_size,grid_size))
     assert(pred_batch_i.shape==true_cost[i,:,:].shape)
     assert( true_batch[i,:,:].shape==true_cost[i,:,:].shape)
 
+    cost_pred_batch += cost_pred
+    cost_true_batch += cost_true
     if torch.abs(cost_pred - cost_true) < 1e-2:
       score += 1.
 
-  return score/batch_size, cost_pred, cost_true
+  return score/batch_size, cost_pred_batch/batch_size, cost_true_batch/batch_size
 
 
 
