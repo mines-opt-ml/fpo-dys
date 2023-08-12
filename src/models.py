@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import cvxpy as cp
-# import blackbox_backprop as bb 
+import blackbox_backprop as bb 
 from cvxpylayers.torch import CvxpyLayer
 from abc import ABC, abstractmethod
 from src.dys_opt_net import DYS_opt_net
@@ -219,7 +219,7 @@ class Pert_Warcraft_Net(nn.Module):
         self.fc_final = nn.Linear(in_features=64*24*24, out_features=self.m**2)
 
         ## Perturbed Differentiable Optimization layer
-        dijkstra = Dijkstra(euclidean_weight=True,four_neighbors=True)
+        dijkstra = Dijkstra(grid_size=self.m, euclidean_weight=True,four_neighbors=False)
         self.dijkstra = dijkstra
         self.pert_dijkstra = perturbations.perturbed(dijkstra,
                                       num_samples=3,
@@ -252,5 +252,35 @@ class Pert_Warcraft_Net(nn.Module):
       else:
         path = self.dijkstra(cost_vec.view(cost_vec.shape[0], self.m, self.m), batch_mode=True)
       return path.to(self.device)
+    
+## Create NN using Blackbox backprop of Vlastelica et al
+class BB_Warcraft_Net(nn.Module):
+    '''
+    This net is equipped to run an m-by-m grid graphs. No A matrix is necessary.
+    Not quite working. No signal is backpropagating?
+    '''
+    def __init__(self, edges, num_edges, m,  device='cpu', in_channels=3):
+        super().__init__()
+        self.m = m
+        self.device = device
+        self.shortestPath = bb.ShortestPath()
+
+        self.resnet_model = torchvision.models.resnet18(pretrained=False, num_classes=num_edges)
+        del self.resnet_model.conv1
+        self.resnet_model.conv1 = nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.fc_final = nn.Linear(in_features=64*24*24, out_features=self.m**2)
+        
+    def forward(self, d):
+        batch_size = d.shape[0]
+        d = self.resnet_model.conv1(d)
+        d = self.resnet_model.bn1(d)
+        d = self.resnet_model.relu(d)
+        d = self.resnet_model.maxpool(d)
+        d = self.resnet_model.layer1(d)
+        cost_vec = self.fc_final(d.reshape(batch_size, -1)).view(batch_size, -1) # size = batch_size x num_vertices
+        suggested_weights = cost_vec.view(cost_vec.shape[0], self.m, self.m)
+        suggested_shortest_paths = self.shortestPath.apply(suggested_weights, 100)
+        
+        return suggested_shortest_paths
 
         

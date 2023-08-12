@@ -82,7 +82,7 @@ https://github.com/google-research/google-research/blob/master/perturbations/exp
             neighbors.append((curr_vertex[0] + offset[0],curr_vertex[1] + offset[1]))
   return neighbors
 
-def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, device='cpu', pred_batch_edge_form=True):
+def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, device='cpu', graph_type='E'):
   '''
   Simple utility for determining what fraction of predicted paths in pred_batch have the same (optimal) costs as the
   truth paths in true_batch. More sophisticated approaches could use Dijkstra's algorithm, but we find this suffices.
