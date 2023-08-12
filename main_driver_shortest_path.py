@@ -77,8 +77,8 @@ for grid_size in grid_size_array:
   b = b.to(device)
 
   ## Load model/network
-  DYS_net = ShortestPathNet(A, b, num_vertices = grid_size**2, num_edges = num_edges ,
-                    Edges = edge_list_torch.to(device), context_size = 5, device=device)
+  DYS_net = ShortestPathNet(A, b, grid_size=grid_size, num_vertices = grid_size**2, num_edges = num_edges ,
+                    edges = edge_list, context_size = 5, device=device)
   DYS_net.to(device)
 
   # Train

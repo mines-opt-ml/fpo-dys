@@ -10,13 +10,6 @@ from torch.utils.data import TensorDataset
 from torch.utils.data.dataset import random_split, Subset
 from src.torch_Dijkstra import Dijkstra
 
-## Custom initialization
-def uniform_init(m):
-    if hasattr(m, 'weight') and m.weight is not None:
-        nn.init.uniform_(m.weight, 1e-4, 1e-2)
-    if hasattr(m, 'bias') and m.bias is not None:
-        m.bias.data.fill_(0.01)
-
 ## Small utility for rounding coordinates of points
 def round_coordinates(vertex_name):
   vertex_coord = [int(vertex_name[0]), int(vertex_name[1])]
@@ -119,9 +112,30 @@ def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, de
 
   return score/batch_size, cost_pred_batch/batch_size, cost_true_batch/batch_size
 
+def greedy_decoder(node_map, m):
+  curr_vertex = (0,0)
+  prev_vertex = (-1, -1)
+  path_map = torch.zeros(node_map.shape)
+  path_map[0, 0] = 1.0
+  visited_list = [(0,0)]
+  count = 0
+  while curr_vertex != (m-1, m-1) and count <= 1000:
+    neighbors = get_neighboring_vertices(curr_vertex, prev_vertex, m)
+    next_vertex = curr_vertex
+    next_vertex_val = 0.0
+    for neighbor in neighbors:
+      if node_map[neighbor[0], neighbor[1]] > next_vertex_val and neighbor not in visited_list: 
+        next_vertex_val = node_map[neighbor[0], neighbor[1]]
+        next_vertex = neighbor
+    prev_vertex = curr_vertex
+    curr_vertex = next_vertex
+    visited_list.append(curr_vertex)
+    path_map[curr_vertex[0], curr_vertex[1]] = 1.0
+    count += 1
 
+  return path_map
 
-def compute_perfect_path_acc(pred_batch, true_batch):
+def compute_perfect_path_acc(pred_batch, true_batch, edge_list, grid_size, device):
   '''
   Simple utility for determining what fraction of predicted paths in pred_batch match the ground
   truth paths in true_batch. More sophisticated approaches could use Dijkstra's algorithm, but we find this suffices.
@@ -129,7 +143,10 @@ def compute_perfect_path_acc(pred_batch, true_batch):
   score = 0.
   batch_size = pred_batch.shape[0]
   for i in range(batch_size):
-    if torch.linalg.norm(torch.round(pred_batch[i,:]) - true_batch[i,:]) < 1e-2:
+    curr_map = edge_to_node(pred_batch[i,:], edge_list, grid_size, device)
+    true_map = edge_to_node(true_batch[i,:], edge_list, grid_size, device)
+    path_map = greedy_decoder(curr_map, grid_size).to(device)
+    if torch.linalg.norm(true_map - path_map)< 1e-2: # torch.linalg.norm(torch.round(pred_batch[i,:]) - true_batch[i,:]) < 1e-2:
       score += 1.
   
   return score/batch_size

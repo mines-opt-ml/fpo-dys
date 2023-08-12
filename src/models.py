@@ -7,33 +7,44 @@ from abc import ABC, abstractmethod
 from src.dys_opt_net import DYS_opt_net
 from src.torch_Dijkstra import Dijkstra
 from src.shortest_path import perturbations
-from.utils import node_to_edge
+from.utils import node_to_edge, edge_to_node
 import torchvision
 
 
 
 ## Create NN using DYS layer. Look how easy it is!
 class ShortestPathNet(DYS_opt_net):
-  def __init__(self, A, b, num_vertices, num_edges, Edges, context_size, device='cpu'):
+  def __init__(self, A, b, grid_size, num_vertices, num_edges, edges, context_size, device='cpu'):
     super(ShortestPathNet, self).__init__(A, b)
     self.context_size = context_size
     self.num_vertices = num_vertices
     self.num_edges = num_edges
     self.hidden_dim = 2*context_size
-    self.Edges = Edges
+    self.edges = edges
     self.device=device
+    self.grid_size = grid_size
     
     ## initialize fc layers
     self.fc_1 = nn.Linear(context_size, self.hidden_dim)
     self.fc_2 = nn.Linear(self.hidden_dim, self.num_edges)
     self.leaky_relu = nn.LeakyReLU(0.1)
 
-
+    ## Dijkstra for forward pass. 
+    self.dijkstra = Dijkstra(grid_size = grid_size, vertex_mode=False, edge_list=edges, four_neighbors=True)
+  
   def F(self, z, cost_vec):
     '''
     gradient of cost vector with a little bit of regularization.
     '''
     return cost_vec + 0.0005*z
+
+  def test_time_forward(self, d):
+    return self.train_time_forward(d)
+    # cost_vec = self.data_space_forward(d)
+    # path = self.dijkstra(cost_vec, batch_mode=True)
+    # path = node_to_edge(path, self.edges, four_neighbors=True).to(self.device)
+    # print(edge_to_node(path[1,:], self.edges, self.grid_size, self.device))
+    # return path
 
   def data_space_forward(self, d):
     z = self.leaky_relu(self.fc_1(d))
