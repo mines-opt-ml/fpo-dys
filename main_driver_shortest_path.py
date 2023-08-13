@@ -46,7 +46,7 @@ ne_trained_BB = []
 
 # Define Grid array for all models to solve
 # grid_size_array = [5,10,20,30, 50, 100]
-grid_size_array = [5,10]
+grid_size_array = [5]
 
 base_data_path = './src/shortest_path/shortest_path_data/'
 

@@ -43,7 +43,7 @@ def node_to_edge(paths, edge_list, four_neighbors=False):
   dijkstra = Dijkstra(grid_size=grid_size, euclidean_weight=True, four_neighbors=four_neighbors)
   
   edge_paths = torch.zeros(batch_size, num_edges)
-  temp_costs = 1000. - 999*paths.numpy() #DM: Choice of constants here is a bit arbitrary.
+  temp_costs = 1000. - 999*paths.numpy() #Choice of constants here is a bit arbitrary.
 
   for i in range(batch_size):
     _, path_e = dijkstra.run_single(temp_costs[i,:,:],Gen_Data=True)
@@ -75,42 +75,6 @@ https://github.com/google-research/google-research/blob/master/perturbations/exp
             neighbors.append((curr_vertex[0] + offset[0],curr_vertex[1] + offset[1]))
   return neighbors
 
-def compute_accuracy(pred_batch, true_batch, true_cost, edge_list, grid_size, device='cpu', graph_type='E'):
-  '''
-  Simple utility for determining what fraction of predicted paths in pred_batch have the same (optimal) costs as the
-  truth paths in true_batch. More sophisticated approaches could use Dijkstra's algorithm, but we find this suffices.
-  Assumes true_cost and true_batch are in vertex form. But pred_batch might be in edge_form depending on the solver.
-  '''
-   
-  score = 0.
-  cost_pred_batch = 0.
-  cost_true_batch = 0.
-  batch_size = pred_batch.shape[0]
-  pred_batch_prev = torch.zeros(12,12).to(device)
-  for i in range(batch_size):
-    pred_batch_i = edge_to_node(pred_batch[i,:], edge_list, grid_size, device)
-    print('\n Predicted path:\n ')
-    print(pred_batch_i)
-    pred_batch_prev = pred_batch_i
-    print('\n')
-    cost_pred = torch.sum(true_cost[i,:,:] * pred_batch_i)
-    cost_true = torch.sum(true_cost[i,:,:] * true_batch[i,:,:]) # assumes true batch is in vertex mode 
-    # print('Cost matrix is ')
-    # print(true_cost[i,:,:] * pred_batch_i)
-    # print('\n true path is:\n ')
-    # print(true_batch[i,:,:])
-    # print('\n')
-    print('\n cost predicted is '+ str(cost_pred.item())+ ' and true cost is '+ str(cost_true.item()))
-    assert(true_cost[i,:,:].shape==(grid_size,grid_size))
-    assert(pred_batch_i.shape==true_cost[i,:,:].shape)
-    assert( true_batch[i,:,:].shape==true_cost[i,:,:].shape)
-
-    cost_pred_batch += cost_pred
-    cost_true_batch += cost_true
-    if torch.abs(cost_pred - cost_true) < 1e-2:
-      score += 1.
-
-  return score/batch_size, cost_pred_batch/batch_size, cost_true_batch/batch_size
 
 def greedy_decoder(node_map, m):
   curr_vertex = (0,0)
@@ -163,7 +127,6 @@ def compute_perfect_path_acc_vertex(pred_batch, true_batch):
   return score/batch_size
 
 ## Utility for computing normalized regret 
-# TODO: Fix this so that it can also be used with warcraft example.
 def compute_regret_shortest_path(WW,d_batch, true_batch, pred_batch, type, edge_list, grid_size, device):
   '''
   Computes the difference in length between predicted path and best path.
@@ -231,7 +194,7 @@ def create_shortest_path_data(m, train_size, test_size, context_size):
 
     ## Construct an instance of the dijkstra class
     # Only considering four neighbors---no diag edges
-    dijkstra = Dijkstra(grid_size=m, euclidean_weight=True,four_neighbors=True)
+    dijkstra = Dijkstra(grid_size=m, euclidean_weight=True,four_neighbors=True, forward_only=True)
     # Loop and determine the shortest paths
     for context in enumerate(Context):
         weight_vec = torch.matmul(WW, context[1]) # context[1] as the enumerate command yields tuples

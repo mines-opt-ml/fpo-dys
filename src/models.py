@@ -40,12 +40,8 @@ class ShortestPathNet(DYS_opt_net):
 
   def test_time_forward(self, d):
     return self.train_time_forward(d)
-    # cost_vec = self.data_space_forward(d)
-    # path = self.dijkstra(cost_vec, batch_mode=True)
-    # path = node_to_edge(path, self.edges, four_neighbors=True).to(self.device)
-    # print(edge_to_node(path[1,:], self.edges, self.grid_size, self.device))
-    # return path
-
+    
+    
   def data_space_forward(self, d):
     z = self.leaky_relu(self.fc_1(d))
     cost_vec = self.fc_2(z)

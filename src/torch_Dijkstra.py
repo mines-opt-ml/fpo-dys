@@ -14,7 +14,7 @@ class Dijkstra:
   """Shortest path on a grid using Dijkstra's algorithm."""
 
   def __init__(
-      self, grid_size, vertex_mode=True, edge_list=None, four_neighbors=False, initial_cost=1e10, euclidean_weight=False):
+      self, grid_size, vertex_mode=True, edge_list=None, four_neighbors=False, forward_only=False, initial_cost=1e10, euclidean_weight=False):
     self.four_neighbors = four_neighbors
     self.initial_cost = initial_cost
     self.euclidean_weight = euclidean_weight
@@ -32,7 +32,12 @@ class Dijkstra:
             self.inside(x + off_x, y + off_y))
 
   def around(self, x, y):
-    coords = itertools.product(range(-1, 2), range(-1, 2))
+    if self.forward_only:
+      # allows only "forward" movements
+      # This setting was used to generate the data.
+      coords = itertools.product(range(0, 2), range(0, 2))
+    else:
+      coords = itertools.product(range(-1, 2), range(-1, 2))
     result = []
     for offset in coords:
       if self.valid_move(x, y, offset[0], offset[1]):
