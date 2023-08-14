@@ -106,17 +106,6 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
         print('epoch: ', epoch, '| ave_tr_loss: ', "{:5.2e}".format(train_loss_ave), '| te_loss: ', "{:5.2e}".format(test_loss), '| acc.: ', "{:<4f}".format(accuracy), '| lr: ', "{:5.2e}".format(optimizer.param_groups[0]['lr']), '| time: ', "{:<15f}".format(epoch_time))
 
         epoch += 1
-        
-        if epoch==max_epochs:
-            print('\n ------------------------ \n')
-            print('\n Predicted Path \n')
-            print('path_pred edge = ', torch.nonzero(path_pred[2,:]))
-            print(edge_to_node(path_pred[2,:], edge_list, grid_size, device))
-            print('\n True Path \n')
-            print(edge_to_node(path_batch[2,:], edge_list, grid_size, device))
-            print('path_batch edge = ', torch.nonzero(path_batch[2,:]))
-            print('\n ------------------------ \n')
-
 
     # return test_loss_hist, train_time, test_acc_hist, best_params
     return test_loss_hist, train_time, test_acc_hist

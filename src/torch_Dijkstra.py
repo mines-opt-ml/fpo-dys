@@ -21,6 +21,7 @@ class Dijkstra:
     self.vertex_mode = vertex_mode
     self.edge_list = edge_list
     self.grid_size = grid_size
+    self.forward_only = forward_only
 
   def inside(self, x, y):
     return 0 <= x < self.shape[0] and 0 <= y < self.shape[1]
@@ -106,11 +107,11 @@ class Dijkstra:
       return torch.from_numpy(self.path).float()
 
   def run_batch(self, tensor, Gen_Data):
-    return torch.stack([self.run_single(tensor[i,:], Gen_Data)
+    return torch.stack([self.run_single(tensor[i], Gen_Data)
                      for i in range(tensor.shape[0])],
                     axis=0)
 
-  def __call__(self, tensor, batch_mode = False, Gen_Data=False):
+  def __call__(self, tensor, batch_mode = True, Gen_Data=False):
     if len(tensor.shape) > 3:
       return torch.stack([self.run_batch(tensor[i])
                        for i in range(tensor.shape[0])],

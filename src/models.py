@@ -41,7 +41,7 @@ class ShortestPathNet(DYS_opt_net):
   def test_time_forward(self, d):
     return self.train_time_forward(d)
     
-    
+
   def data_space_forward(self, d):
     z = self.leaky_relu(self.fc_1(d))
     cost_vec = self.fc_2(z)
@@ -100,7 +100,7 @@ class Pert_ShortestPathNet(nn.Module):
         self.leaky_relu = nn.LeakyReLU(0.1)
         
         ## Perturbed Differentiable Optimization layer
-        dijkstra = Dijkstra(euclidean_weight=True,four_neighbors=True)
+        dijkstra = Dijkstra(self.m, euclidean_weight=True,four_neighbors=True)
         self.dijkstra = dijkstra
         self.pert_dijkstra = perturbations.perturbed(dijkstra,
                                       num_samples=3,
