@@ -1,13 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 22 16:19:54 2022
-
-@author: danielmckenzie
-
-The DYS Layer. Pure gold
-"""
-
 import torch
 import torch.nn as nn
 from abc import ABC, abstractmethod
@@ -83,7 +73,7 @@ class DYS_opt_net(nn.Module, ABC):
     def train_time_forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
                 depth_warning=True): 
       """
-      Default behaviour.
+      Default forward behaviour.
       """
       with torch.no_grad():
           w = self.data_space_forward(d)
@@ -122,5 +112,4 @@ class DYS_opt_net(nn.Module, ABC):
         if not self.training:
           return self.test_time_forward(d)
 
-        return self.train_time_forward(d, eps=1.0e-2, max_depth=int(1e4), 
-                depth_warning=True)
+        return self.train_time_forward(d, eps, max_depth, depth_warning)

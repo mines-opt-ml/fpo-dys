@@ -12,7 +12,7 @@ import torchvision
 
 
 
-## Create NN using DYS layer. Look how easy it is!
+## Create NN using DYS layer.
 class ShortestPathNet(DYS_opt_net):
   def __init__(self, A, b, grid_size, num_vertices, num_edges, edges, context_size, device='cpu'):
     super(ShortestPathNet, self).__init__(A, b)
@@ -28,9 +28,6 @@ class ShortestPathNet(DYS_opt_net):
     self.fc_1 = nn.Linear(context_size, self.hidden_dim)
     self.fc_2 = nn.Linear(self.hidden_dim, self.num_edges)
     self.leaky_relu = nn.LeakyReLU(0.1)
-
-    ## Dijkstra for forward pass. 
-    self.dijkstra = Dijkstra(grid_size = grid_size, vertex_mode=False, edge_list=edges, four_neighbors=True)
   
   def F(self, z, cost_vec):
     '''
@@ -39,6 +36,7 @@ class ShortestPathNet(DYS_opt_net):
     return cost_vec + 0.0005*z
 
   def test_time_forward(self, d):
+    # Could definitely use something better here, e.g. Dijkstra's algorithm
     return self.train_time_forward(d)
     
 
@@ -123,14 +121,13 @@ class Pert_ShortestPathNet(nn.Module):
 class BB_ShortestPathNet(nn.Module):
     '''
     This net is equipped to run an m-by-m grid graphs. No A matrix is necessary.
-    Not quite working. No signal is backpropagating?
     '''
     def __init__(self, m, context_size, device='cpu'):
         super().__init__()
         self.m = m
         self.device = device
-        self.hidden_dim = 2*context_size
-        self.shortestPath = bb.ShortestPath()
+        self.hidden_dim = 10*context_size
+        # self.shortestPath = bb.ShortestPath()
 
         ## Standard layers
         self.fc_1 = nn.Linear(context_size, self.hidden_dim)
@@ -141,6 +138,6 @@ class BB_ShortestPathNet(nn.Module):
         w = self.leaky_relu(self.fc_1(d))
         w = self.fc_2(w)
         suggested_weights = w.view(w.shape[0], self.m, self.m)
-        suggested_shortest_paths = self.shortestPath.apply(suggested_weights, 100)
+        suggested_shortest_paths = bb.ShortestPath.apply(suggested_weights, 5)
         
         return suggested_shortest_paths

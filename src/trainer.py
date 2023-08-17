@@ -1,18 +1,14 @@
-'''
-This file implements the training of a diff opt network.
-
-'''
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from torch.utils.data import Dataset, TensorDataset, DataLoader
 import time as time
 import torch.nn as nn
-from src.utils import compute_perfect_path_acc, compute_perfect_path_acc_vertex, edge_to_node
+from src.utils import compute_perfect_path_acc, compute_perfect_path_acc_vertex, edge_to_node, HammingLoss
 import numpy as np
 
 def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
-            learning_rate, graph_type, edge_list, device='cpu', max_time=3600, use_scheduler=True, test_batch_size=200, train_batch_size=200):
+            learning_rate, graph_type, edge_list, device='cpu', max_time=3600, use_scheduler=True, test_batch_size=200, train_batch_size=200, use_blackbox_backprop=False):
     '''
     Train network net using given parameters, for shortest path
     problem on a grid_size-by-grid_size grid graph.
@@ -31,7 +27,12 @@ def trainer(net, train_dataset, test_dataset, grid_size, max_epochs,
         scheduler = ReduceLROnPlateau(optimizer, 'min')
     else:
         scheduler = StepLR(optimizer, step_size=max_epochs, gamma=1.0)
-    criterion = nn.MSELoss()
+    
+    if use_blackbox_backprop:
+        criterion = HammingLoss()
+    else:
+        criterion = nn.MSELoss()
+    # criterion = nn.MSELoss()
 
     ## Initialize arrays that will be returned.
     test_loss_hist= []

@@ -245,3 +245,9 @@ def create_shortest_path_data(m, train_size, test_size, context_size):
     # for the vertex (_v) and edge (_e) datasets.
     return train_dataset_v, test_dataset_v, train_dataset_e, test_dataset_e, WW, A.float(), b.float(), num_edges, Edges
         
+
+class HammingLoss(torch.nn.Module):
+    def forward(self, suggested, target):
+        errors = suggested * (1.0 - target) + (1.0 - suggested) * target
+        return errors.mean(dim=0).sum()
+        # return (torch.mean(suggested*(1.0-target)) + torch.mean((1.0-suggested)*target)) * 25.0

@@ -13,7 +13,7 @@ device = 'mps' #'cuda:0'
 print('device: ', device)
 
 ## Some fixed hyperparameters
-max_epochs = 20
+max_epochs = 100
 init_lr = 1e-2 # initial learning rate. We're using a scheduler. 
 torch.manual_seed(0)
 
@@ -226,6 +226,7 @@ for grid_size in grid_size_array:
 # ---------------------------------------------------------------
 # ------------------------ Train BB ------------------------
 # ---------------------------------------------------------------
+init_lr = 1e-3 ## BB-net does better with smaller learning rate.
 for grid_size in grid_size_array:
 
   ## Load data

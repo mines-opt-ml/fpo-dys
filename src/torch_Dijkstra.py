@@ -47,7 +47,7 @@ class Dijkstra:
 
   def reset(self):
     """Resets the variables to compute the shortest path of a cost matrix."""
-    self.shape = [self.grid_size, self.grid_size]# costs.shape
+    self.shape = [self.grid_size, self.grid_size]
     self.start = (0, 0)
     self.path_list = []  # Custom. To ensure compatibility 
     # of training data with DYS approach.
