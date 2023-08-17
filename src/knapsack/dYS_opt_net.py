@@ -1,13 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 22 16:19:54 2022
-
-@author: danielmckenzie
-
-The DYS Layer. Pure gold
-"""
-
 import torch
 import torch.nn as nn
 from abc import ABC, abstractmethod

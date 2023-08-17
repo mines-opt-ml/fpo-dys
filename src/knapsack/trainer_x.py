@@ -1,11 +1,3 @@
-'''
-Trainer for knapsack problem. This implements the "x" version of the problem where the training 
-data is pairs (d, x(d)).
-
-Daniel McKenzie
-June 2023
-
-'''
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -62,13 +54,7 @@ def Trainer_x(net, train_dataset, test_dataset, val_dataset, num_item, num_knaps
     if not os.path.exists(checkpt_path):
         os.makedirs(checkpt_path)
 
-     ## Compute initial validation loss
-    # if model_type == "DYS":
-    #     metric = regret # criterion
-    # elif model_type == "BBOpt" or model_type == "PertOpt":
-    #     metric = criterion
-    # else:
-    #     metric = regret
+    ## Compute initial validation loss    
     metric = regret
 
     best_val_loss = Compute_Test_Loss(net,loader_val, model_type, metric, num_knapsack, num_item, device)

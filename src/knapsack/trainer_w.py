@@ -1,7 +1,3 @@
-'''
-This file implements the training of a diff opt network.
-
-'''
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -55,13 +51,6 @@ def Trainer_w(net, train_dataset, test_dataset, val_dataset, num_item, num_knaps
     max_time = 1800
     checkpt_path = './models/' + model_type + '/' 
 
-     ## Compute initial validation loss
-    # if model_type == "DYS":
-    #     metric = regret # criterion
-    # elif model_type == "BBOpt" or model_type == "PertOpt":
-    #     metric = criterion
-    # else:
-    #     metric = regret
     metric = regret
 
     best_val_loss = Compute_Test_Loss(net,loader_val, model_type, metric, num_knapsack, num_item, device)
