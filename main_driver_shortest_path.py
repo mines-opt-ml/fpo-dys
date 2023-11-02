@@ -46,7 +46,7 @@ ne_trained_BB = []
 
 # Define Grid array for all models to solve
 # grid_size_array = [5,10,20,30, 50, 100]
-grid_size_array = [5]
+grid_size_array = [10]
 
 base_data_path = './src/shortest_path/shortest_path_data/'
 
@@ -75,6 +75,9 @@ for grid_size in grid_size_array:
 
   A = A.to(device)
   b = b.to(device)
+
+  print('length is '+ str(len(train_dataset_e)))
+  
 
   ## Load model/network
   DYS_net = ShortestPathNet(A, b, grid_size=grid_size, num_vertices = grid_size**2, num_edges = num_edges ,

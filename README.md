@@ -19,7 +19,7 @@ thousands of variables
 
 ## Installation
 
-See ```src/requirements.txt``` for standard required packages. In addition, the code in this repository also requires [PyEPO](https://github.com/khalil-research/PyEPO) package. 
+See ```src/requirements.txt``` for standard required packages. In addition, the code in this repository also requires the [PyEPO](https://github.com/khalil-research/PyEPO) and [blackbox-backprop](https://github.com/martius-lab/blackbox-backprop) packages.
 
 
 ## Quick Start
