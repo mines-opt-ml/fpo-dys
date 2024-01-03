@@ -80,14 +80,11 @@ class DYS_opt_net(nn.Module, ABC):
       return z
 
 
-    def forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
+    def train_time_forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
                 depth_warning=True): 
       """
-      w are the parameters. To be passed to the operator F.
+      Default forward behaviour.
       """
-      if not self.training:
-         return self.test_time_forward(d)
-      
       with torch.no_grad():
           w = self.data_space_forward(d)
           self.depth = 0.0
@@ -108,10 +105,20 @@ class DYS_opt_net(nn.Module, ABC):
       if self.depth >= max_depth and depth_warning:
           print("\nWarning: Max Depth Reached - Break Forward Loop\n")
 
-      attach_gradients = self.training
-      if attach_gradients:
+      if self.training:
           w = self.data_space_forward(d)
           z = self.apply_DYS(z.detach(), w)
           return self.project_C1(z)
       else:
           return self.project_C1(z).detach()
+      
+    def forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
+                depth_warning=True):
+        '''
+        Includes a switch for using different behaviour at 
+        test/deployment. 
+        '''
+        if not self.training:
+          return self.test_time_forward(d)
+
+        return self.train_time_forward(d, eps, max_depth, depth_warning)
