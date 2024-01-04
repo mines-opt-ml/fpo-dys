@@ -34,6 +34,11 @@ def main(args):
     dataset_test = pyepo.data.dataset.optDataset(optmodel, d_test, w_test)
     dataset_val = pyepo.data.dataset.optDataset(optmodel, d_val, w_val)
 
+    # Remove the gurobi model befor esaving
+    dataset_train.model = None
+    dataset_test.model = None
+    dataset_val.model = None
+
     # Package into a dictionary
     state = { 'weights_numpy' : weights_numpy,
               'contexts_numpy': contexts_numpy,
@@ -49,7 +54,7 @@ def main(args):
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
     
-    state_path = args.save_dir + 'Knapsack_training_data_' + str(num_knapsack) + '_' + str(num_item) +'.pth'
+    state_path = args.save_dir + 'Knapsack_training_data_' + str(num_knapsack) + '_' + str(num_item) +'.p'
     dill.dump( state, open( state_path, "wb" ) )
 
 if __name__ == '__main__':

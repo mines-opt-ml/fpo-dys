@@ -9,15 +9,15 @@ June 2023
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from torch.utils.data import Dataset, TensorDataset, DataLoader
+from torch.utils.data import DataLoader
 import time as time
 import torch.nn as nn
 from src.knapsack.knapsack_utils import RegretLoss, Compute_Test_Loss
 import pyepo
-import numpy as np
 import os
+import json
 
-def Trainer(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsack, max_epochs,
+def trainer(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsack, max_epochs,
             learning_rate, model_type, device='cuda:0'):
    
 
@@ -53,7 +53,7 @@ def Trainer(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsac
     val_loss_hist= []
     epoch_time_hist = []
     max_time = 1200
-    checkpt_path = './src/knapsack/saved_weights/' + model_type + '/' 
+    checkpt_path = './src/knapsack/saved_weights/' + model_type + '/'
     if not os.path.exists(checkpt_path):
         os.makedirs(checkpt_path)
 
@@ -134,4 +134,11 @@ def Trainer(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsac
     if time_till_best_val_loss < 1e-6:
         time_till_best_val_loss = sum(epoch_time_hist)
 
-    return val_loss_hist, epoch_time_hist, best_test_loss, time_till_best_val_loss
+    # Collect results
+    results = {"val_loss_hist": val_loss_hist,
+                "epoch_time_hist": epoch_time_hist,
+                "best_test_loss": best_test_loss,
+                "time_till_best_val_loss":time_till_best_val_loss
+                }
+        
+    return results

@@ -13,10 +13,11 @@ import torch.nn as nn
 from abc import ABC, abstractmethod
 
 class DYS_opt_net(nn.Module, ABC):
-    def __init__(self, A, b, alpha=0.05):
+    def __init__(self, A, b, device='mps', alpha=0.05):
         super().__init__()
         # self.b = b.to(device) # assumes b has shape n (not nx1)
-        self.device = b.device
+        self.device = device
+        #self.device = b.device
         self.b = b
         self.alpha = alpha*torch.ones(1, device=self.device)
         self.A = A
