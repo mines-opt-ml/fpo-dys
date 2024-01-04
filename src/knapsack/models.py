@@ -10,7 +10,6 @@ Models for the shortest path prediction problem.
 
 import torch
 import torch.nn as nn
-from abc import ABC, abstractmethod
 from src.dys_opt_net import DYS_opt_net
 from pyepo.model.grb import knapsackModel
 

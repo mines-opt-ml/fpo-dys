@@ -120,6 +120,7 @@ class DYS_opt_net(nn.Module, ABC):
         test/deployment. 
         '''
         if not self.training:
+          print(self.test_time_forward(d).shape)
           return self.test_time_forward(d)
 
         return self.train_time_forward(d, eps, max_depth, depth_warning)

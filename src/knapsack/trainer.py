@@ -15,7 +15,6 @@ import torch.nn as nn
 from src.knapsack.knapsack_utils import RegretLoss, Compute_Test_Loss
 import pyepo
 import os
-import json
 
 def trainer(net, train_dataset, test_dataset, val_dataset, num_item, num_knapsack, max_epochs,
             learning_rate, model_type, device='cuda:0'):
