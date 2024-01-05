@@ -8,14 +8,18 @@ import json
 
 def main(args):
     # fetch data
-    save_path = args.save_dir + 'shortest_path_training_data_' + str(args.grid_size) +'.p'
-    if os.path.exists(save_path):
-        file = open(save_path, 'rb')
+    print(args.data_dir)
+    data_path = os.path.join(args.data_dir, 'shortest_path_training_data_' + str(args.grid_size) +'.p')
+    if os.path.exists(data_path):
+        file = open(data_path, 'rb')
         data = dill.load(file)
         file.close()
     else:
         print('Data not saved... generating data.')
         generate_shortest_path_data.main(args)
+        file = open(data_path, 'rb')
+        data = dill.load(file)
+        file.close()
 
     # unpack data
     dataset_train = data["dataset_train"]
@@ -28,7 +32,6 @@ def main(args):
     A = data["A"].to(args.device)
     b = data["b"].to(args.device)
     
-    # context_size = 5
     # initialize model, prepare to train
     if args.model_type == "DYS":
         net = ShortestPathNet(args.grid_size, A, b, edges, context_size, args.device)
@@ -36,15 +39,16 @@ def main(args):
         net = Generic_ShortestPathNet(A, context_size, args.grid_size, args.device)
         print(net)
     elif args.model_type == "CVX": 
-        net = Cvx_ShortestPathNet(args.grid_size, A, b, 5, args.device)
+        net = Cvx_ShortestPathNet(args.grid_size, A, b, context_size, args.device)
 
     net.to(args.device)
 
     # Train!
-    results = trainer.trainer(net, dataset_train, dataset_test, dataset_val, edges, args.grid_size, args.max_epochs, args.learning_rate, args.model_type, args.device)
+    print('\n---- Model type= ' + args.model_type + ' Grid size = ' + str(args.grid_size) + '---\n')
+    results = trainer.trainer(net, dataset_train, dataset_test, dataset_val, args.max_time, args.max_epochs, args.learning_rate, args.model_type, args.weights_dir, args.device)
 
     # Dump to json
-    results_path = os.path.join('./src/shortest_path/results/', 'grid_size_'+str(args.grid_size))
+    results_path = os.path.join(args.results_dir, 'grid_size_'+str(args.grid_size))
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
@@ -56,11 +60,16 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="fpo-dys shortest path")
     parser.add_argument('--grid_size', type=int, default=5)
-    parser.add_argument('--save_dir', type=str, default='./src/shortest_path/shortest_path_data/')
+    parser.add_argument('--data_dir', type=str, default='./src/shortest_path/shortest_path_data/')
+    parser.add_argument('--weights_dir', type=str, default='./src/shortest_path/saved_weights/')
+    parser.add_argument('--results_dir', type=str, default='./src/shortest_path/results/')
     parser.add_argument('--device', type=str, default='mps')
     parser.add_argument('--model_type',type=str, default="DYS")
     parser.add_argument('--learning_rate', type=float, default=1e-2)
-    parser.add_argument('--max_epochs', type=int, default=10)
+    parser.add_argument('--max_epochs', type=int, default=100)
+    parser.add_argument('--num_data', type=int, default=1000)
+    parser.add_argument('--num_feat', type=int, default=5)
+    parser.add_argument('--max_time', type=int, default=1800)
 
     args = parser.parse_args()
     main(args)

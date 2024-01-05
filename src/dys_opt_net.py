@@ -15,14 +15,10 @@ from abc import ABC, abstractmethod
 class DYS_opt_net(nn.Module, ABC):
     def __init__(self, A, b, device='mps', alpha=0.05):
         super().__init__()
-        # self.b = b.to(device) # assumes b has shape n (not nx1)
         self.device = device
-        #self.device = b.device
         self.b = b
         self.alpha = alpha*torch.ones(1, device=self.device)
         self.A = A
-        # self.A = self.A.cuda()
-        # self.A = A
         self.n1 = A.shape[0]  # Number of rows of A
         self.n2 = A.shape[1]  # Number of columns of A
 
@@ -120,7 +116,6 @@ class DYS_opt_net(nn.Module, ABC):
         test/deployment. 
         '''
         if not self.training:
-          print(self.test_time_forward(d).shape)
           return self.test_time_forward(d)
 
         return self.train_time_forward(d, eps, max_depth, depth_warning)

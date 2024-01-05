@@ -18,11 +18,11 @@ def main(args):
     print('Generating training data for shortest path with '+str(grid_size)
           + '-by-' + str(grid_size) + ' grid.')
     
-    contexts_numpy, costs_numpy = pyepo.data.shortestpath.genData(num_data, num_feat, grid, deg=1, noise_width= 0.05)
+    contexts_numpy, costs_numpy = pyepo.data.shortestpath.genData(num_data + 400, num_feat, grid, deg=4, noise_width= 0.5)
     
     # split train test data
-    d_train, d_test_val, w_train, w_test_val = train_test_split(contexts_numpy, costs_numpy, test_size=200)
-    d_test, d_val, w_test, w_val = train_test_split(d_test_val, w_test_val, test_size=100)
+    d_train, d_test_val, w_train, w_test_val = train_test_split(contexts_numpy, costs_numpy, test_size=400)
+    d_test, d_val, w_test, w_val = train_test_split(d_test_val, w_test_val, test_size=200)
     
     # Define PyEPO model
     optmodel = shortestPathModel(grid)
@@ -65,10 +65,10 @@ def main(args):
 
     # Save and finish up
     print('Finished building dataset')
-    if not os.path.exists(args.save_dir):
-        os.makedirs(args.save_dir)
+    if not os.path.exists(args.data_dir):
+        os.makedirs(args.data_dir)
     
-    state_path = args.save_dir + 'shortest_path_training_data_' + str(grid_size) + '.p'
+    state_path = os.path.join(args.data_dir, 'shortest_path_training_data_' + str(grid_size) + '.p')
     dill.dump(state, open( state_path, "wb" ) )
 
 if __name__ == '__main__':
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_data', type=int, default=1000)
     parser.add_argument('--num_feat', type=int, default=5)
     parser.add_argument('--grid_size', type=int, default=5)
-    parser.add_argument('--save_dir', type=str, default='./src/shortest_path/shortest_path_data/')
+    parser.add_argument('--data_dir', type=str, default='./src/shortest_path/shortest_path_data/')
     args = parser.parse_args()
     main(args)
 

@@ -12,7 +12,7 @@ class ShortestPathNet(DYS_opt_net):
     self.num_vertices = A.shape[0]
     self.grid_size = grid_size
     self.num_edges = len(edges)
-    self.hidden_dim = 2*context_size
+    self.hidden_dim = 10*context_size
     self.edges = edges
     self.device=device
     
@@ -52,7 +52,7 @@ class Cvx_ShortestPathNet(nn.Module):
     self.n2 = A.shape[1]
     self.grid_size = grid_size
     self.device = device
-    self.hidden_dim = 2*context_size
+    self.hidden_dim = 10*context_size
 
     ## Standard layers
     self.fc_1 = nn.Linear(context_size, self.hidden_dim)

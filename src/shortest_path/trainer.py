@@ -8,7 +8,7 @@ import pyepo
 import os
 from src.shortest_path.utils import edge_to_node
 
-def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max_epochs, learning_rate, model_type, device='mps'):
+def trainer(net, train_dataset, test_dataset, val_dataset, max_time, max_epochs, learning_rate, model_type, weights_dir, device='mps'):
 
     ## Training setup
     batch_size = 256
@@ -42,8 +42,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
     ## Initialize arrays that will be returned and checkpoint directory
     val_loss_hist= []
     epoch_time_hist = []
-    max_time = 1200
-    checkpt_path = './src/shortest_path/saved_weights/' + model_type + '/'
+    checkpt_path = weights_dir + model_type + '/'
     if not os.path.exists(checkpt_path):
         os.makedirs(checkpt_path)
 
@@ -109,13 +108,13 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
             # So, we compute test loss
             best_test_loss = metric(net,net.shortest_path_solver, loader_test)
             best_val_loss = val_loss
-            print('Best validation loss achieved at epoch ' + str(epoch))
+            print('Best validation regret achieved at epoch ' + str(epoch))
             time_till_best_val_loss = sum(epoch_time_hist)
         
         # scheduler.step(val_loss)
         val_loss_hist.append(val_loss)
         
-        print('epoch: ', epoch, 'validation loss is ', val_loss, 'epoch time: ', epoch_time)
+        print('epoch: ', epoch, 'validation regret is ', val_loss, 'epoch time: ', epoch_time)
         epoch += 1
 
 
