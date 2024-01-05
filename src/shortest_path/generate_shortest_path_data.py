@@ -18,7 +18,7 @@ def main(args):
     print('Generating training data for shortest path with '+str(grid_size)
           + '-by-' + str(grid_size) + ' grid.')
     
-    contexts_numpy, costs_numpy = pyepo.data.shortestpath.genData(num_data, num_feat, grid, deg=4, noise_width= 0.5)
+    contexts_numpy, costs_numpy = pyepo.data.shortestpath.genData(num_data, num_feat, grid, deg=1, noise_width= 0.05)
     
     # split train test data
     d_train, d_test_val, w_train, w_test_val = train_test_split(contexts_numpy, costs_numpy, test_size=200)
@@ -47,7 +47,6 @@ def main(args):
     b[0] = -1.
     b[-1] = 1.
 
-    print(A)
     # Remove the gurobi model before saving
     dataset_train.model = None
     dataset_test.model = None

@@ -1,5 +1,5 @@
 from src.shortest_path import trainer, generate_shortest_path_data
-from src.shortest_path.models import ShortestPathNet
+from src.shortest_path.models import ShortestPathNet, Generic_ShortestPathNet, Cvx_ShortestPathNet
 import argparse
 import os
 import dill
@@ -23,20 +23,25 @@ def main(args):
     dataset_val = data["dataset_val"]
     contexts = data["contexts_numpy"]
     context_size = contexts.shape[1]
-
-    A = data["A"]
-    b = data["b"]
     edges = data["edges"]
+
+    A = data["A"].to(args.device)
+    b = data["b"].to(args.device)
+    
     # context_size = 5
     # initialize model, prepare to train
     if args.model_type == "DYS":
-        net = ShortestPathNet(A, b, edges, context_size)
+        net = ShortestPathNet(args.grid_size, A, b, edges, context_size, args.device)
+    elif args.model_type == "BBOpt" or args.model_type == "PertOpt":
+        net = Generic_ShortestPathNet(A, context_size, args.grid_size, args.device)
         print(net)
+    elif args.model_type == "CVX": 
+        net = Cvx_ShortestPathNet(args.grid_size, A, b, 5, args.device)
 
     net.to(args.device)
 
     # Train!
-    results = trainer.trainer(net, dataset_train, dataset_test, dataset_val, args.grid_size, args.learning_rate, args.model_type, args.device)
+    results = trainer.trainer(net, dataset_train, dataset_test, dataset_val, edges, args.grid_size, args.max_epochs, args.learning_rate, args.model_type, args.device)
 
     # Dump to json
     results_path = os.path.join('./src/shortest_path/results/', 'grid_size_'+str(args.grid_size))
@@ -54,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument('--save_dir', type=str, default='./src/shortest_path/shortest_path_data/')
     parser.add_argument('--device', type=str, default='mps')
     parser.add_argument('--model_type',type=str, default="DYS")
-    parser.add_argument('--learning_rate', type=float, default=1e-3)
+    parser.add_argument('--learning_rate', type=float, default=1e-2)
     parser.add_argument('--max_epochs', type=int, default=10)
 
     args = parser.parse_args()

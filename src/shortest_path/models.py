@@ -6,10 +6,11 @@ from src.dys_opt_net import DYS_opt_net
 from pyepo.model.grb import shortestPathModel
 
 class ShortestPathNet(DYS_opt_net):
-  def __init__(self, A, b, edges, context_size, device='mps'):
+  def __init__(self, grid_size, A, b, edges, context_size, device='mps'):
     super(ShortestPathNet, self).__init__(A, b)
     self.context_size = context_size
     self.num_vertices = A.shape[0]
+    self.grid_size = grid_size
     self.num_edges = len(edges)
     self.hidden_dim = 2*context_size
     self.edges = edges
@@ -21,7 +22,7 @@ class ShortestPathNet(DYS_opt_net):
     self.leaky_relu = nn.LeakyReLU(0.1)
 
     # initialize combinatorial solver
-    self.shortest_path_solver = shortestPathModel((self.num_vertices, self.num_vertices))
+    self.shortest_path_solver = shortestPathModel((self.grid_size, self.grid_size))
 
 
   def F(self, z, cost_vec):
@@ -43,12 +44,13 @@ class ShortestPathNet(DYS_opt_net):
     return self.data_space_forward(d)
   
 class Cvx_ShortestPathNet(nn.Module):
-  def __init__(self, A, b, context_size, device='cpu'):
+  def __init__(self, grid_size, A, b, context_size, device='cpu'):
     super().__init__()
     self.b = b.to(device)
     self.A = A.to(device)
     self.n1 = A.shape[0]
     self.n2 = A.shape[1]
+    self.grid_size = grid_size
     self.device = device
     self.hidden_dim = 2*context_size
 
@@ -56,6 +58,9 @@ class Cvx_ShortestPathNet(nn.Module):
     self.fc_1 = nn.Linear(context_size, self.hidden_dim)
     self.fc_2 = nn.Linear(self.hidden_dim, self.n2)
     self.leaky_relu = nn.LeakyReLU(0.1)
+
+    # initialize combinatorial solver
+    self.shortest_path_solver = shortestPathModel((self.grid_size, self.grid_size))
     
     ## cvxpy layer
     x = cp.Variable(self.n2)
@@ -74,17 +79,23 @@ class Cvx_ShortestPathNet(nn.Module):
   def forward(self, d):
     w = self.leaky_relu(self.fc_1(d))
     w = self.fc_2(w)
-    solution, = self.cvxpylayer(self.A, self.b, w)
-    return solution
+    if self.training:
+      solution, = self.cvxpylayer(self.A, self.b, w)
+      return solution
+    else:
+      return w
+
   
 # For use with blackbox-backprop, perturbed differentiable optimization etc.
 # will use the pyEPO implementations of these schemes
   
 class Generic_ShortestPathNet(nn.Module):
-  def __init__(self, A, context_size, device = 'mps'):
+  def __init__(self, A, context_size, grid_size, device = 'mps'):
+    super().__init__()
     self.num_vertices = A.shape[0]
     self.num_edges = A.shape[1]
-    self.hidden_dim = 2*context_size
+    self.grid_size = grid_size
+    self.hidden_dim = 10*context_size
     self.device = device
 
     ## Standard layers
@@ -93,24 +104,14 @@ class Generic_ShortestPathNet(nn.Module):
     self.leaky_relu = nn.LeakyReLU(0.1)
 
     # initialize combinatorial solver
-    self.shortest_path_solver = shortestPathModel((self.num_vertices, self.num_vertices))
+    self.shortest_path_solver = shortestPathModel((self.grid_size, self.grid_size))
     
 
-def forward(self, d):
-  w = self.leaky_relu(self.fc_1(d))
-  w = self.fc_2(w)
-  # If in training mode, return only the predicted values.
-  # If in testing mode, solve problem using gurobi.
-  if self.training:
+  def forward(self, d):
+    w = self.leaky_relu(self.fc_1(d))
+    w = self.fc_2(w)
     return w
-  else:
-    batch_size = w.shape[0]
-    solutions = torch.zeros(w.shape, device=self.device)
-    for i in range(batch_size):
-        self.shortest_path_solver.setObj(w[i,:])
-        solution, _ = self.shortest_path_solver.solve()
-        solutions[i,:] = torch.tensor(solution).to(self.device)
-    return solutions
+    
 
 
 
