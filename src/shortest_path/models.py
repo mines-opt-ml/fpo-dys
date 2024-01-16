@@ -7,7 +7,7 @@ from pyepo.model.grb import shortestPathModel
 
 class ShortestPathNet(DYS_opt_net):
   def __init__(self, grid_size, A, b, edges, context_size, device='mps'):
-    super(ShortestPathNet, self).__init__(A, b)
+    super(ShortestPathNet, self).__init__(A, b, device)
     self.context_size = context_size
     self.num_vertices = A.shape[0]
     self.grid_size = grid_size

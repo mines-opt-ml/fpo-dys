@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the model types
-model_types="DYS CVX PertOpt BBOpt"
+model_types="DYS PertOpt BBOpt"
 grid_sizes="5 10 15 20 25 30"
 reps="1 2 3"
 data_dir="./src/shortest_path/shortest_path_data"
