@@ -61,6 +61,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="fpo-dys shortest path")
     parser.add_argument('--grid_size', type=int, default=5)
     parser.add_argument('--data_dir', type=str, default='./src/shortest_path/shortest_path_data/')
+    parser.add_argument('--data_deg', type=int, default=4)
+    parser.add_argument('--data_noise_width', type=float, default=0.5)
     parser.add_argument('--weights_dir', type=str, default='./src/shortest_path/saved_weights/')
     parser.add_argument('--results_dir', type=str, default='./src/shortest_path/results/')
     parser.add_argument('--device', type=str, default='mps')
