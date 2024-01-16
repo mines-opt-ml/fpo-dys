@@ -42,6 +42,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
 
     ## Initialize arrays that will be returned and checkpoint directory
     val_loss_hist= []
+    val_acc_hist = []
     epoch_time_hist = []
     checkpt_path = weights_dir + model_type + '/'
     if not os.path.exists(checkpt_path):
@@ -54,6 +55,9 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
     print('Initial validation loss is ', best_val_loss)
     val_loss_hist.append(best_val_loss)
     time_till_best_val_loss = 0
+
+    curr_val_acc = accuracy(net, net.shortest_path_solver, loader_val)
+    val_acc_hist.append(curr_val_acc)
 
      ## Compute initial test loss
     best_test_loss = metric(net,net.shortest_path_solver, loader_test)
@@ -100,7 +104,9 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
         net.eval()
         net.to('cpu')
         val_loss = metric(net, net.shortest_path_solver, loader_val)
-        print('\n Current validation accuracy is ' + str(accuracy(net, net.shortest_path_solver, loader_val)))
+        val_acc = accuracy(net, net.shortest_path_solver, loader_val)
+        val_acc_hist.append(val_acc)
+        print('\n Current validation accuracy is ' + str(val_acc))
         scheduler.step(val_loss)
 
         if val_loss < best_val_loss:
@@ -127,6 +133,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
 
     # Collect results
     results = {"val_loss_hist": val_loss_hist,
+               "val_acc_hist": val_acc_hist,
                 "epoch_time_hist": epoch_time_hist,
                 "best_test_loss": best_test_loss,
                 "time_till_best_val_loss":time_till_best_val_loss
