@@ -45,7 +45,7 @@ def main(args):
 
     # Train!
     print('\n---- Model type= ' + args.model_type + ' Grid size = ' + str(args.grid_size) + '---\n')
-    results = trainer.trainer(net, dataset_train, dataset_test, dataset_val, args.max_time, args.max_epochs, args.learning_rate, args.model_type, args.weights_dir, args.device)
+    results = trainer.trainer(net, dataset_train, dataset_test, dataset_val, edges, args.grid_size, args.max_time, args.max_epochs, args.learning_rate, args.model_type, args.weights_dir, args.device)
 
     # Dump to json
     results_path = os.path.join(args.results_dir, 'grid_size_'+str(args.grid_size))

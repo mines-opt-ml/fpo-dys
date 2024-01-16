@@ -18,7 +18,7 @@ def main(args):
     print('Generating training data for shortest path with '+str(grid_size)
           + '-by-' + str(grid_size) + ' grid.')
     
-    contexts_numpy, costs_numpy = pyepo.data.shortestpath.genData(num_data + 400, num_feat, grid, deg=4, noise_width= 0.5)
+    contexts_numpy, costs_numpy = pyepo.data.shortestpath.genData(num_data + 400, num_feat, grid, deg=args.data_deg, noise_width= args.data_noise_width)
     
     # split train test data
     d_train, d_test_val, w_train, w_test_val = train_test_split(contexts_numpy, costs_numpy, test_size=400)
@@ -76,6 +76,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_data', type=int, default=1000)
     parser.add_argument('--num_feat', type=int, default=5)
     parser.add_argument('--grid_size', type=int, default=5)
+    parser.add_argument('--data_deg', type=int, default=4)
+    parser.add_argument('--data_noise_width', type=float, default=0.5)
     parser.add_argument('--data_dir', type=str, default='./src/shortest_path/shortest_path_data/')
     args = parser.parse_args()
     main(args)

@@ -7,8 +7,9 @@ import torch.nn as nn
 import pyepo
 import os
 from src.shortest_path.utils import edge_to_node
+from src.utils.accuracy import accuracy
 
-def trainer(net, train_dataset, test_dataset, val_dataset, max_time, max_epochs, learning_rate, model_type, weights_dir, device='mps'):
+def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max_time, max_epochs, learning_rate, model_type, weights_dir, device='mps'):
 
     ## Training setup
     batch_size = 256
@@ -75,8 +76,8 @@ def trainer(net, train_dataset, test_dataset, val_dataset, max_time, max_epochs,
             net.train()
             optimizer.zero_grad()
             predicted = net(d_batch)
-            # print(edge_to_node(predicted[1,:], edges, grid_size, device))
-            # print(edge_to_node(opt_sol[1,:], edges, grid_size, device))
+            #print(edge_to_node(predicted[1,:], edges, grid_size, device))
+            #print(edge_to_node(opt_sol[1,:], edges, grid_size, device))
             if model_type == "DYS" or model_type == "CVX":
                 loss = criterion(opt_sol, predicted)
             elif model_type == "BBOpt":
@@ -99,6 +100,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, max_time, max_epochs,
         net.eval()
         net.to('cpu')
         val_loss = metric(net, net.shortest_path_solver, loader_val)
+        print('\n Current validation accuracy is ' + str(accuracy(net, net.shortest_path_solver, loader_val)))
         scheduler.step(val_loss)
 
         if val_loss < best_val_loss:
