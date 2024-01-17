@@ -1,6 +1,8 @@
 import gurobipy as gp
 from gurobipy import GRB
 from pyepo.model.grb import optGrbModel
+import numpy as np
+
 
 class shortestPathModel_8(optGrbModel):
     """
@@ -129,6 +131,21 @@ class shortestPathModel_8(optGrbModel):
         # sum up vector cost
         obj = c[0,0] + gp.quicksum(c[self.nodes_map[j]] * self.x[i,j] for i, j in self.x)
         self._model.setObjective(obj)
+
+    def _convert_to_grid(self):
+        '''
+        Converts a path in edge form to grid form
+        '''
+        grid_form = np.zeros(self.grid)
+        grid_form[0,0] = 1.
+        grid_form[-1,-1] = 1.
+        for i, j in self.edges:
+            grid_form[self.nodes_map[i]] += 1.
+            grid_form[self.nodes_map[j]] += 1.
+        # reshape to vector?
+        grid_form = grid_form.reshape[-1]
+        return grid_form
+            
         
     def solve(self):
         """
