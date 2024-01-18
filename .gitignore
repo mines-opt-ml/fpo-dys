@@ -1,10 +1,8 @@
 .DS_Store
 .DS_Store?
 src/knapsack/knapsack_data/
-src/knapsack/results/
 src/knapsack/saved_weights/
 src/shortest_path/shortest_path_data/
-src/shortest_path/results/
 src/shortest_path/saved_weights/
 src/warcraft/raw_data/
 src/warcraft/warcraft_data/
