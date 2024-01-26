@@ -48,29 +48,29 @@ if not os.path.exists(csv_save_path):
 for k, alg in enumerate(algs):
     # mean
     target_file = os.path.join(csv_save_path, 'time_till_best_val_loss_' + alg +'_mean.csv')
-    np.savetxt(target_file, np.column_stack([grid_sizes, mean_time_till_best_val_loss_matrix[:,k]]))
+    np.savetxt(target_file, np.column_stack([grid_sizes, mean_time_till_best_val_loss_matrix[:,k]]), delimiter=",")
 
     # min
     target_file = os.path.join(csv_save_path, 'time_till_best_val_loss_' + alg +'_min.csv')
-    np.savetxt(target_file, np.column_stack([grid_sizes, min_time_till_best_val_loss_matrix[:,k]]))
+    np.savetxt(target_file, np.column_stack([grid_sizes, min_time_till_best_val_loss_matrix[:,k]]), delimiter=",")
 
     # max
     target_file = os.path.join(csv_save_path, 'time_till_best_val_loss_' + alg +'_max.csv')
-    np.savetxt(target_file, np.column_stack([grid_sizes, max_time_till_best_val_loss_matrix[:,k]]))
+    np.savetxt(target_file, np.column_stack([grid_sizes, max_time_till_best_val_loss_matrix[:,k]]), delimiter=",")
 
 # best_loss
 for k, alg in enumerate(algs):
     # mean
     target_file = os.path.join(csv_save_path, 'best_test_loss_' + alg +'_mean.csv')
-    np.savetxt(target_file, np.column_stack([grid_sizes, mean_best_test_loss_matrix[:,k]]))
+    np.savetxt(target_file, np.column_stack([grid_sizes, mean_best_test_loss_matrix[:,k]]), delimiter=",")
 
     # min
     target_file = os.path.join(csv_save_path, 'best_test_loss_' + alg +'_min.csv')
-    np.savetxt(target_file, np.column_stack([grid_sizes, min_best_test_loss_matrix[:,k]]))
+    np.savetxt(target_file, np.column_stack([grid_sizes, min_best_test_loss_matrix[:,k]]), delimiter=",")
 
     # max
     target_file = os.path.join(csv_save_path, 'best_test_loss_' + alg +'_max.csv')
-    np.savetxt(target_file, np.column_stack([grid_sizes, max_best_test_loss_matrix[:,k]]))
+    np.savetxt(target_file, np.column_stack([grid_sizes, max_best_test_loss_matrix[:,k]]), delimiter=",")
 
 
 
