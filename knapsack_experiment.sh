@@ -2,7 +2,7 @@
 
 # Define the model types
 model_types="DYS CVX PertOpt BBOpt"
-num_items="70 80 90 100"
+num_items="100 150 200 250 300 350 400 450 500"
 reps="1 2 3"
 data_dir="./src/knapsack/knapsack_data"
 weights_dir="./src/knapsack/saved_weights"

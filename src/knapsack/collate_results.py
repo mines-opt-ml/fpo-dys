@@ -7,7 +7,7 @@ import numpy as np
 algs = ['BBOpt', 'CVX', 'DYS', 'PertOpt']
 num_algs = len(algs)
 num_reps = 3
-num_items = [20, 30, 40, 50, 60, 70, 80, 90, 100]
+num_items = [20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500]
 num_num_items = len(num_items)
 fields = ['epoch_time_hist', 'val_loss_hist', 'time_till_best_val_loss', 'best_test_loss']
 
