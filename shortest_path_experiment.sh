@@ -4,9 +4,9 @@
 model_types="DYS CVX PertOpt BBOpt"
 grid_sizes="5 10 15 20 25 30"
 reps="1 2 3"
-data_dir="./src/shortest_path/shortest_path_data"
-weights_dir="./src/shortest_path/saved_weights"
-results_dir="./src/shortest_path/results"
+data_dir="./src/shortest_path/shortest_path_data/"
+weights_dir="./src/shortest_path/saved_weights/"
+results_dir="./src/shortest_path/results/"
 
 # Train for each model type and grid size
 for grid_size in $grid_sizes

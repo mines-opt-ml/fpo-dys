@@ -8,7 +8,7 @@ import json
 
 def main(args):
     # fetch data
-    data_path = args.data_dir + 'Knapsack_training_data_' + str(args.num_knapsack) + '_' + str(args.num_item) +'.p'
+    data_path = args.data_dir + 'Knapsack_training_data_' + str(args.num_knapsack) + '_' + str(args.num_item) + '_data-deg_' + str(args.data_deg) +'.p'
     if os.path.exists(data_path):
         file = open(data_path, 'rb')
         data = dill.load(file)
@@ -69,8 +69,8 @@ if __name__ == "__main__":
     parser.add_argument('--num_feat', type=int, default=5)
     parser.add_argument('--num_data', type=int, default=1100)
     parser.add_argument('--max_epochs', type=int, default=25)
-    parser.add_argument('--data_deg', type=int, default=4)
-    parser.add_argument('--data_noise_width', type=float, default=0.5)
+    parser.add_argument('--data_deg', type=int, default=2)
+    parser.add_argument('--data_noise_width', type=float, default=0.05)
     parser.add_argument('--data_dir', type=str, default='./src/knapsack/knapsack_data/')
     parser.add_argument('--max_time', type=int, default=1800)
     parser.add_argument('--model_type', type=str, default='DYS')
