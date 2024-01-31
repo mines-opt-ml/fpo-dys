@@ -50,7 +50,7 @@ class KnapSackNet(DYS_opt_net):
     gradient of cost vector with a little bit of regularization.
     NB: this is a max, not a min problem, hence the negative signs.
     '''
-    return  -cost_vec + 0.0005*z  # tried up to 0.5
+    return  -cost_vec + 0.05*z  # tried up to 0.5
 
   def data_space_forward(self, d):
     z = self.leaky_relu(self.fc_1(d))
