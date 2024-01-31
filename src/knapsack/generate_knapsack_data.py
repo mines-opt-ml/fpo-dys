@@ -54,7 +54,7 @@ def main(args):
     if not os.path.exists(args.data_dir):
         os.makedirs(args.data_dir)
     
-    state_path = args.data_dir + 'Knapsack_training_data_' + str(num_knapsack) + '_' + str(num_item) +'.p'
+    state_path = args.data_dir + 'Knapsack_training_data_' + str(num_knapsack) + '_' + str(num_item) +'_data-deg_' + str(args.data_deg) +'.p'
     dill.dump( state, open( state_path, "wb" ) )
 
 if __name__ == '__main__':

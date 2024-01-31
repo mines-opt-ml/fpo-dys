@@ -29,7 +29,7 @@ class KnapSackNet(DYS_opt_net):
     self.context_size = context_size
     self.num_constraints = num_constraints
     self.num_resources = num_resources
-    self.hidden_dim = 100*context_size
+    self.hidden_dim = 1000*context_size
     self.device = device
     self.zero_padding_dim = self.num_constraints + self.num_resources
 
@@ -50,11 +50,12 @@ class KnapSackNet(DYS_opt_net):
     gradient of cost vector with a little bit of regularization.
     NB: this is a max, not a min problem, hence the negative signs.
     '''
-    return  -cost_vec + 0.05*z  # tried up to 0.5
+    return  -cost_vec + 0.0005*z  # tried up to 0.5
 
   def data_space_forward(self, d):
     z = self.leaky_relu(self.fc_1(d))
     z = self.leaky_relu(self.fc_2(z))
+    #z = self.leaky_relu(self.fc_3(z))
     cost_vec = self.dropout(self.fc_3(z))
     if self.training:
       ## NB: Now pad cost_vec with zeros, to account for dummy variables
@@ -93,7 +94,7 @@ class Cvx_KnapsackNet(nn.Module):
     self.b = b.to(device)
     self.n1 = A.shape[0]
     self.n2 = A.shape[1]
-    self.hidden_dim = 100*context_size
+    self.hidden_dim = 1000*context_size
     self.device = device
     self.zero_padding_dim = self.num_constraints + self.num_resources
 
@@ -143,7 +144,7 @@ class ValPredictNet(nn.Module):
     self.context_size = num_feat
     self.num_constraints = num_knapsack
     self.num_resources = num_item
-    self.hidden_dim = 100*num_feat
+    self.hidden_dim = 1000*num_feat
     self.weights = weights
     self.capacities = capacities
     self.device = device
