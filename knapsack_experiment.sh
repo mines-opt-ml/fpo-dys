@@ -15,10 +15,10 @@ do
     do
         for model_type in $model_types
         do
-            rep_data_dir="${data_dir}/$rep"
-            rep_weights_dir="${weights_dir}/$rep"
-            rep_results_dir="${results_dir}/$rep"
-            python -m src.knapsack.train --model_type $model_type --num_item $num_item --num_data 1000 --data_dir $rep_data_dir --results_dir $rep_results_dir --device mps
+            rep_data_dir="${data_dir}/$rep/"
+            rep_weights_dir="${weights_dir}/$rep/"
+            rep_results_dir="${results_dir}/$rep/"
+            python -m src.knapsack.train --model_type $model_type --num_item $num_item --num_data 1000 --data_dir $rep_data_dir --results_dir $rep_results_dir --weights_dir $rep_weights_dir --device mps
             echo "$num_item"
         done
     done
