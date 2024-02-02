@@ -7,7 +7,7 @@ import numpy as np
 algs = ['BBOpt', 'CVX', 'DYS', 'PertOpt']
 num_algs = len(algs)
 num_reps = 3
-num_items = [20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+num_items = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750]
 num_num_items = len(num_items)
 fields = ['epoch_time_hist', 'val_loss_hist', 'time_till_best_val_loss', 'best_test_loss']
 
@@ -16,7 +16,7 @@ best_test_loss_matrix = np.zeros((num_reps, num_num_items, num_algs))
 
 ## Collect data from the json files
 for rep in range(num_reps):
-    base_path = os.path.join('./src/knapsack/results', str(rep+1)+ '/')
+    base_path = os.path.join('./src/knapsack/results/deg_2', str(rep+1)+ '/')
     for j, num_item in enumerate(num_items):
         current_path = os.path.join(base_path, 'num_knapsack_'+str(num_item))
         print(current_path)
