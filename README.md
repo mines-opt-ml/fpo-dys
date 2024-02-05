@@ -9,10 +9,19 @@ In many practical settings, a combinatorial problem must be repeatedly solved wi
 
 See ```src/requirements.txt``` for standard required packages. In addition, the code in this repository also requires [PyEPO](https://github.com/khalil-research/PyEPO) package. 
 
+## Quick Start
+After installation, type 
+
+``` python -m src.knapsack.train --model_type DYS --num_item 20 --num-knapsack 2  ```
+
+to train our ```DYS``` model on a sample knapsack task. To duplicate, for example, our shortest path experiment, type
+
+``` bash shortest_path_experiment.sh```
+
 
 ## Publication
 
-_Faster Predict-and-Optimize with Davis-Yin Splitting_ (**[arXiv Link](https://arxiv.org/abs/2301.13395)**)
+_Learning to Optimize Integer Linear Programs with Davis-Yin Splitting_ (**[arXiv Link](https://arxiv.org/abs/2301.13395)**)
     
     @article{mckenzie2023faster,
       title={Faster Predict-and-Optimize with Davis-Yin Splitting},
