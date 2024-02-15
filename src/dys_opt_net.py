@@ -13,6 +13,8 @@ import torch.nn as nn
 from abc import ABC, abstractmethod
 
 class DYS_opt_net(nn.Module, ABC):
+    ''' Abstract implementation of a Davis-Yin Splitting (DYS) layer in a neural network.
+    '''
     def __init__(self, A, b, device='mps', alpha=0.05):
         super().__init__()
         self.device = device
