@@ -5,4 +5,10 @@ hide:
 
 ## DYS-Net Overview
 
-(to be complete)
+::: src.dys_opt_net.DYS_opt_net
+    options:
+      show_root_heading: false
+      show_source: false  
+      members: None
+
+<br>
