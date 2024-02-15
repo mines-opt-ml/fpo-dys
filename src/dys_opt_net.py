@@ -106,6 +106,7 @@ class DYS_opt_net(nn.Module, ABC):
             Args:
                 z (tensor): Point in Euclidean space
                 w (tensor): Parameters defining function and its gradient
+
             Returns:
                 z (tensor): Updated estimate of solution
         '''
