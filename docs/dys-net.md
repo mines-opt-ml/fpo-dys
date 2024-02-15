@@ -11,6 +11,13 @@ hide:
       show_source: false  
       members: None
 
+## Map Context Data to Gradient Parameters
+::: src.dys_opt_net.DYS_opt_net.data_space_forward
+    options:
+      heading_level: 2
+      show_root_heading: false
+      show_source: true            
+
 <br>
 
 ## Project onto $C_1$ 
