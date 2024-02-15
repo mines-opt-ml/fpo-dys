@@ -47,13 +47,14 @@ class DYS_opt_net(nn.Module, ABC):
             x (tensor): point in Euclidean space
 
         Returns:
-            p (tensor): projection onto nonnegative orthant
+            Px (tensor): projection of $\mathsf{x}$ onto nonnegative orthant
         
         '''
-        return torch.clamp(x, min=0)
+        Px = torch.clamp(x, min=0)
+        return Px
 
     def project_C2(self, z):
-      ''' Projection to the subspace Ax=b.
+      ''' Projection to the subspace of all $\mathsf{x}$ such that $\mathsf{Ax=b}$.
 
         Note:
             The singular value decomposition (SVD) representation
@@ -77,14 +78,17 @@ class DYS_opt_net(nn.Module, ABC):
         ''' Gradient of objective function. Must be defined for each problem type.
        
             Note:
-                The parameters of F are stored in w.
+                The parameters of $\mathsf{F}$ are stored in $\mathsf{w}$.
+
+            Args:
+                z (tensor): point in Euclidean space
+                w (tensor): Parameters defining function and its gradient
         '''
         pass
 
     @abstractmethod
     def data_space_forward(self, d):
-      '''
-      Specify the map from context d to parameters of F.
+      ''' Specify the map from context d to parameters of F.
       '''
       pass
 
