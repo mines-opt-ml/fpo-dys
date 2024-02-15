@@ -14,7 +14,7 @@ hide:
 <br>
 
 ## Apply Optimization Layer    
-::: src.models.DYS_opt_net.apply_DYS
+::: src.dys_opt_net.DYS_opt_net.apply_DYS
     options:
       heading_level: 2
       show_root_heading: false
