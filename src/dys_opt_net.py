@@ -117,7 +117,16 @@ class DYS_opt_net(nn.Module, ABC):
 
     def train_time_forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
                 depth_warning=True): 
-        '''  Default forward behaviour.
+        ''' Default forward behaviour during training.
+
+            Args:
+                d (tensor):           Contextual data
+                eps (float);          Stopping criterion threshold
+                max_depth (int):      Maximum number of DYS updates
+                depth_warning (bool): Boolean for whether to print warning message when max depth reached
+            
+            Returns:
+                z (tensor): P+O Inference
         '''
         with torch.no_grad():
             w = self.data_space_forward(d)
@@ -144,10 +153,23 @@ class DYS_opt_net(nn.Module, ABC):
             return self.project_C1(z)
         else:
             return self.project_C1(z).detach()
-      
+
+    
     def forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
                 depth_warning=True):
-        ''' Includes a switch for using different behaviour at test/deployment. 
+        ''' Forward propagation of DYS-net.
+        
+            Note:
+                A switch is included for using different behaviour at test/deployment. 
+
+            Args:
+                d (tensor):           Contextual data
+                eps (float);          Stopping criterion threshold
+                max_depth (int):      Maximum number of DYS updates
+                depth_warning (bool): Boolean for whether to print warning message when max depth reached
+            
+            Returns:
+                z (tensor): P+O Inference        
         '''
         if not self.training:
           return self.test_time_forward(d)
