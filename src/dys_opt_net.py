@@ -14,6 +14,17 @@ from abc import ABC, abstractmethod
 
 class DYS_opt_net(nn.Module, ABC):
     ''' Abstract implementation of a Davis-Yin Splitting (DYS) layer in a neural network.
+
+        Note:
+            The singular value decomposition of the matrix $\mathsf{A}$ is used for the
+            projection onto the subspace of all $\mathsf{x}$ such that $\mathsf{Ax=b}$.
+
+        Args:
+            A (tensor):      Matrix for linear system
+            b (tensor):      Measurement vector for linear system
+            device (string): Device on which to perform computations
+            alpha (float):   Step size for DYS updates
+     
     '''
     def __init__(self, A, b, device='mps', alpha=0.05):
         super().__init__()
@@ -30,14 +41,31 @@ class DYS_opt_net(nn.Module, ABC):
         self.UT = torch.t(U).to(self.device)
 
     def project_C1(self, x):
-        '''
-        Projection to the non-negative orthant.
+        ''' Projection to the non-negative orthant.
+
+        Args:
+            x (tensor): point in Euclidean space
+
+        Returns:
+            p (tensor): projection onto nonnegative orthant
+        
         '''
         return torch.clamp(x, min=0)
 
     def project_C2(self, z):
-      '''
-      Projection to the subspace Ax=b.
+      ''' Projection to the subspace Ax=b.
+
+        Note:
+            The singular value decomposition (SVD) representation
+            of the matrix $\mathsf{A}$ is used to efficiently compute
+            the projection.
+            
+        Args:
+            z (tensor): point in Euclidean space
+
+        Returns:
+            Pz (tensor): projection onto subspace $\mathsf{\{z : Ax = b\}}$
+         
       '''
       res = self.A.matmul(z.permute(1,0)) - self.b.view(-1,1)
       temp = self.V.matmul(self.s_inv.view(-1,1)*self.UT.matmul(res)).permute(1,0)
@@ -46,9 +74,10 @@ class DYS_opt_net(nn.Module, ABC):
 
     @abstractmethod
     def F(self, z, w):
-        '''
-        Gradient of objective function. Must be defined for each problem type.
-        Note the parameters of F are stored in w.
+        ''' Gradient of objective function. Must be defined for each problem type.
+       
+            Note:
+                The parameters of F are stored in w.
         '''
         pass
 
