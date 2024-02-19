@@ -4,6 +4,7 @@ import os
 import dill
 import argparse
 from torch.utils.data import Dataset, DataLoader
+from src.shortest_path.shortest_path_utils import shortestPathModel_8
 
 class mapDataset(Dataset):
     '''
@@ -50,9 +51,26 @@ the other experiments.
     dataset_val = mapDataset(tmaps_val, costs_val, paths_val)
     dataset_test = mapDataset(tmaps_test, costs_test, paths_test)
 
+    # Matrix A and vector b
+    optmodel = shortestPathModel_8((grid_size, grid_size))
+    edges  = optmodel.edges
+
+    A = torch.zeros((grid_size**2, len(edges)))
+    for j,e in enumerate(edges):
+        ind0 = e[0]
+        ind1 = e[1]
+        A[ind0,j] = -1.
+        A[ind1, j] = +1.
+
+    b = torch.zeros(grid_size**2)
+    b[0] = -1.
+    b[-1] = 1.
 
     # Package into a dictionary
-    state = {'grid_size'     : grid_size,
+    state = {'edges': edges,
+             'A': A,
+             'b': b,
+             'grid_size'     : grid_size,
              'dataset_train' : dataset_train,
              'dataset_test'  : dataset_test,
              'dataset_val'   : dataset_val, 

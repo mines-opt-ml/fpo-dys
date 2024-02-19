@@ -7,7 +7,7 @@ from pyepo import EPO
 def accuracy(predmodel, optmodel, dataloader):
     """
     A function to evaluate model performance with accuracy.
-    Writtne by DAniel McKenzie in the style of PyEPO.
+    Writtne by Daniel McKenzie in the style of PyEPO.
 
     Args:
         predmodel (nn): a regression neural network for cost prediction

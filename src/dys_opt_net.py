@@ -40,7 +40,7 @@ class DYS_opt_net(nn.Module, ABC):
         self.V = torch.t(VT).to(self.device)
         self.UT = torch.t(U).to(self.device)
 
-    def project_C1(self, x):
+    def _project_C1(self, x):
         ''' Projection to the non-negative orthant.
 
         Args:
@@ -53,7 +53,7 @@ class DYS_opt_net(nn.Module, ABC):
         Px = torch.clamp(x, min=0)
         return Px
 
-    def project_C2(self, z):
+    def _project_C2(self, z):
       ''' Projection to the subspace of all $\mathsf{x}$ such that $\mathsf{Ax=b}$.
 
         Note:
@@ -87,7 +87,7 @@ class DYS_opt_net(nn.Module, ABC):
         pass
 
     @abstractmethod
-    def data_space_forward(self, d):
+    def _data_space_forward(self, d):
       ''' Specify the map from context d to parameters of F.
       '''
       pass
@@ -100,7 +100,7 @@ class DYS_opt_net(nn.Module, ABC):
        pass
 
 
-    def apply_DYS(self, z, w): 
+    def _apply_DYS(self, z, w): 
         ''' Apply a single update step from Davis-Yin Splitting. 
             
             Args:
@@ -110,13 +110,13 @@ class DYS_opt_net(nn.Module, ABC):
             Returns:
                 z (tensor): Updated estimate of solution
         '''
-        x = self.project_C1(z)
-        y = self.project_C2(2.0 * x - z - self.alpha*self.F(z, w))
+        x = self._project_C1(z)
+        y = self._project_C2(2.0 * x - z - self.alpha*self.F(z, w))
         z = z - x + y
         return z
 
 
-    def train_time_forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
+    def _train_time_forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
                 depth_warning=True): 
         ''' Default forward behaviour during training.
 
@@ -139,7 +139,7 @@ class DYS_opt_net(nn.Module, ABC):
             all_samp_conv = False
             while not all_samp_conv and self.depth < max_depth:
                 z_prev = z.clone()   
-                z = self.apply_DYS(z, w)
+                z = self._apply_DYS(z, w)
                 diff_norm = torch.norm(z - z_prev) 
                 diff_norm = torch.norm( diff_norm) 
                 diff_norm = torch.max( diff_norm ) # take norm along the latter two dimensions then max
@@ -151,9 +151,9 @@ class DYS_opt_net(nn.Module, ABC):
         if self.training:
             w = self.data_space_forward(d)
             z = self.apply_DYS(z.detach(), w)
-            return self.project_C1(z)
+            return self._project_C1(z)
         else:
-            return self.project_C1(z).detach()
+            return self._project_C1(z).detach()
 
     
     def forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
@@ -175,4 +175,4 @@ class DYS_opt_net(nn.Module, ABC):
         if not self.training:
           return self.test_time_forward(d)
 
-        return self.train_time_forward(d, eps, max_depth, depth_warning)
+        return self._train_time_forward(d, eps, max_depth, depth_warning)
