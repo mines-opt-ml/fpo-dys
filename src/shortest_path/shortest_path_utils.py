@@ -2,6 +2,7 @@ import gurobipy as gp
 from gurobipy import GRB
 from pyepo.model.grb import optGrbModel
 import numpy as np
+import torch
 
 
 class shortestPathModel_8(optGrbModel):
@@ -169,3 +170,68 @@ class shortestPathModel_8(optGrbModel):
         # matrix to vector
         sol = sol.reshape(-1)
         return sol, self._model.objVal
+
+def convert_to_grid_torch(path_batch, grid_size, edges, nodes_map, device):
+    '''
+    Utility for converting a path in edge format to grid format.
+    '''
+    batch_size = path_batch.shape[0]
+    grid_form = torch.zeros((batch_size, grid_size, grid_size), device=device)
+    grid_form[:,0,0] = 1.
+    grid_form[:,-1,1] = 1.
+    for e, edge in enumerate(edges):
+        target_node_0 = nodes_map[edge[0]]
+        target_node_1 = nodes_map[edge[1]]
+        grid_form[:,target_node_0[0], target_node_0[1]] += path_batch[:,e]
+        grid_form[:,target_node_1[0], target_node_1[1]] += path_batch[:,e]
+    # for i in range(batch_size):
+    #     for e, [j, k] in enumerate(edges):
+    #         grid_form[i,nodes_map[j]] += path_batch[i,e]
+    #         grid_form[i,nodes_map[k]] += path_batch[i,e]
+    # switch it back
+    grid_form_list = grid_form.view(batch_size, grid_size**2)
+    return grid_form/2, grid_form_list/2
+
+def evaluate(nnet, optmodel, dataloader):
+    # init data
+    data = {"Regret":[], "Relative Regret":[], "Accuracy":[], "Optimal":[]}
+    # eval
+    nnet.eval()
+    for x, c, w, z in tqdm(dataloader):
+        # cuda
+        if next(nnet.parameters()).is_cuda:
+            x, c, w, z = x.cuda(), c.cuda(), w.cuda(), z.cuda()
+        # predict
+        cp = nnet(x)
+        # to numpy
+        c = c.to("cpu").detach().numpy()
+        w = w.to("cpu").detach().numpy()
+        z = z.to("cpu").detach().numpy()
+        cp = cp.to("cpu").detach().numpy()
+        # solve
+        for i in range(cp.shape[0]):
+            # sol for pred cost
+            optmodel.setObj(cp[i])
+            wpi, _ = optmodel.solve()
+            # obj with true cost
+            zpi = np.dot(wpi, c[i])
+            # round
+            zpi = zpi.round(1)
+            zi = z[i,0].round(1)
+            # regret
+            regret = (zpi - zi).round(1)
+            data["Regret"].append(regret)
+            data["Relative Regret"].append(regret / zi)
+            # accuracy
+            data["Accuracy"].append((abs(wpi - w[i]) < 0.5).mean())
+            # optimal
+            data["Optimal"].append(abs(regret) < 1e-5)
+    # dataframe
+    df = pd.DataFrame.from_dict(data)
+    # print
+    time.sleep(1)
+    print("Avg Regret: {:.4f}".format(df["Regret"].mean()))
+    print("Avg Rel Regret: {:.2f}%".format(df["Relative Regret"].mean()*100))
+    print("Path Accuracy: {:.2f}%".format(df["Accuracy"].mean()*100))
+    print("Optimality Ratio: {:.2f}%".format(df["Optimal"].mean()*100))
+    return df

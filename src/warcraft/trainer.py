@@ -7,7 +7,10 @@ import torch.nn as nn
 import pyepo
 import os
 from src.shortest_path.utils import edge_to_node
+from src.shortest_path.shortest_path_utils import convert_to_grid_torch, evaluate 
 from src.utils.accuracy import accuracy
+import tqdm
+import numpy as np
 
 def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max_time, max_epochs, learning_rate, model_type, weights_dir, device='mps'):
 
@@ -52,7 +55,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
     net.to('cpu')
     best_val_loss = metric(net, net.shortest_path_solver, loader_val)
 
-    print('Initial validation loss is ', best_val_loss)
+    print('Initial validation regret is ', best_val_loss)
     val_loss_hist.append(best_val_loss)
     time_till_best_val_loss = 0
 
@@ -61,7 +64,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
 
      ## Compute initial test loss
     best_test_loss = metric(net,net.shortest_path_solver, loader_test)
-    print('Initial test loss is ', best_test_loss)
+    print('Initial test regret is ', best_test_loss)
    
     ## Train!
     epoch=1
@@ -83,7 +86,18 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
             #print(edge_to_node(predicted[1,:], edges, grid_size, device))
             #print(edge_to_node(opt_sol[1,:], edges, grid_size, device))
             if model_type == "DYS" or model_type == "CVX":
-                loss = criterion(opt_sol, predicted)
+                grid_predicted, predicted_reshaped = convert_to_grid_torch(predicted, grid_size, edges, net.shortest_path_solver.nodes_map, net.device)
+                print('\n ---------------- \n True \n ')
+                print(opt_sol[6,:].reshape(12,12).cpu().detach().numpy())
+                print('\n Prediction \n')
+                print(np.round(grid_predicted[6,:,:].cpu().detach().numpy()))
+                print('----------------------------')
+                #print(np.vstack((opt_sol[4,:].cpu().detach().numpy(), np.round(predicted_reshaped[4,:].cpu().detach().numpy()))))
+
+                # print(grid_predicted[1,:,:])
+                # print('\n Opt sol is \n')
+                # print(opt_sol[1,:])
+                loss = criterion(opt_sol, predicted_reshaped)
             elif model_type == "BBOpt":
                 x_predicted = dbb(predicted)
                 loss = criterion(opt_sol, x_predicted)
@@ -93,7 +107,8 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
 
             loss.backward()
             optimizer.step()
-            train_loss_ave = 0.95*train_loss_ave + 0.05*loss.item()
+            #train_loss_ave = 0.95*train_loss_ave + 0.05*loss.item()
+            print(f"\n Training loss is {loss.item()}")
         
         end_time_epoch = time.time()
         epoch_time =  end_time_epoch - start_time_epoch
