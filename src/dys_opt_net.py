@@ -130,7 +130,7 @@ class DYS_opt_net(nn.Module, ABC):
                 z (tensor): P+O Inference
         '''
         with torch.no_grad():
-            w = self.data_space_forward(d)
+            w = self._data_space_forward(d)
             self.depth = 0.0
 
             z = torch.rand((self.n2), device=self.device)
@@ -149,8 +149,8 @@ class DYS_opt_net(nn.Module, ABC):
         if self.depth >= max_depth and depth_warning:
             print("\nWarning: Max Depth Reached - Break Forward Loop\n")
         if self.training:
-            w = self.data_space_forward(d)
-            z = self.apply_DYS(z.detach(), w)
+            w = self._data_space_forward(d)
+            z = self._apply_DYS(z.detach(), w)
             return self._project_C1(z)
         else:
             return self._project_C1(z).detach()

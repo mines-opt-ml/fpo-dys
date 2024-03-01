@@ -5,6 +5,7 @@ import os
 import dill
 import torch
 import json
+import numpy as np
 
 def main(args):
     # fetch data
@@ -26,7 +27,7 @@ def main(args):
 
     A = data["A"].to(args.device)
     b = data["b"].to(args.device)
-    
+   
     # initialize model, prepare to train
     if args.model_type == "DYS":
         net = WarcraftShortestPathNet(args.grid_size, A, b, args.device)

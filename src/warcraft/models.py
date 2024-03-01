@@ -37,7 +37,14 @@ class WarcraftShortestPathNet(DYS_opt_net):
         # reshape for optmodel
         out = torch.squeeze(out, 1)
         cost_vec = out.reshape(out.shape[0], -1)
-        return cost_vec
+        if self.training:
+            batch_size = cost_vec.shape[0]
+            train_cost_vec = torch.zeros((batch_size, len(self.shortest_path_solver.edges)),device=self.device)
+            for e, edge in enumerate(self.shortest_path_solver.edges):
+	            train_cost_vec[:,e] = cost_vec[:,edge[1]]
+            return train_cost_vec
+        else:
+            return cost_vec
     
     def F(self, z, cost_vec):
         return cost_vec + 0.0005*z
