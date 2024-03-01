@@ -59,8 +59,8 @@ if __name__ == "__main__":
     parser.add_argument('--results_dir', type=str, default='./src/warcraft/results/')
     parser.add_argument('--device', type=str, default='mps')
     parser.add_argument('--model_type',type=str, default="DYS")
-    parser.add_argument('--learning_rate', type=float, default=1e-2)
-    parser.add_argument('--max_epochs', type=int, default=100)
+    parser.add_argument('--learning_rate', type=float, default=5e-4)
+    parser.add_argument('--max_epochs', type=int, default=50)
     parser.add_argument('--max_time', type=int, default=1800)
 
     args = parser.parse_args()

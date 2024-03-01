@@ -178,7 +178,7 @@ def convert_to_grid_torch(path_batch, grid_size, edges, nodes_map, device):
     batch_size = path_batch.shape[0]
     grid_form = torch.zeros((batch_size, grid_size, grid_size), device=device)
     grid_form[:,0,0] = 1.
-    grid_form[:,-1,1] = 1.
+    grid_form[:,-1,-1] = 1.
     for e, edge in enumerate(edges):
         target_node_0 = nodes_map[edge[0]]
         target_node_1 = nodes_map[edge[1]]

@@ -22,10 +22,19 @@ class WarcraftShortestPathNet(DYS_opt_net):
         self.conv2 = nn.Conv2d(64, 1, kernel_size=(1, 1), stride=(1, 1), padding=(1, 1), bias=False)
         # max pooling
         self.maxpool2 = nn.AdaptiveMaxPool2d((grid_size, grid_size))
+        ## add a dropout layer
+        # self.dropout = nn.Dropout(0.3)
 
         ## Optimization layer. Can be used within test_time_forward
         self.shortest_path_solver = shortestPathModel_8((self.grid_size, self.grid_size))
-
+        ## Compute geometric edge length multiplier
+        # self.edge_lengths = torch.zeros(len(self.shortest_path_solver.edges), device=self.device)
+        # for e, edge in enumerate(self.shortest_path_solver.edges):
+        #     node_0_coords = self.shortest_path_solver.nodes_map[edge[0]]
+        #     node_1_coords = self.shortest_path_solver.nodes_map[edge[1]]
+        #     nodes_dist = torch.sqrt(torch.tensor((node_0_coords[0] - node_1_coords[0])**2,device=self.device) + torch.tensor((node_0_coords[1] - node_1_coords[1])**2,device=self.device))
+        #     self.edge_lengths[e] = nodes_dist
+        
     def _data_space_forward(self, d):
         h = self.conv1(d)
         h = self.bn(h)
@@ -41,7 +50,7 @@ class WarcraftShortestPathNet(DYS_opt_net):
             batch_size = cost_vec.shape[0]
             train_cost_vec = torch.zeros((batch_size, len(self.shortest_path_solver.edges)),device=self.device)
             for e, edge in enumerate(self.shortest_path_solver.edges):
-	            train_cost_vec[:,e] = cost_vec[:,edge[1]]
+                train_cost_vec[:,e] = cost_vec[:,edge[1]]
             return train_cost_vec
         else:
             return cost_vec

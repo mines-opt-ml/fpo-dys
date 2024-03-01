@@ -156,7 +156,7 @@ class DYS_opt_net(nn.Module, ABC):
             return self._project_C1(z).detach()
 
     
-    def forward(self, d, eps=1.0e-2, max_depth=int(1e4), 
+    def forward(self, d, eps=1.0e-2, max_depth=int(1e4),
                 depth_warning=True):
         ''' Forward propagation of DYS-net.
         

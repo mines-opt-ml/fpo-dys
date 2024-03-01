@@ -25,7 +25,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
 
     # Initialize loss and evaluation metric
     if model_type == "DYS" or model_type == "CVX":
-        criterion = nn.MSELoss()
+        criterion =  nn.MSELoss()
     elif model_type == "BBOpt" or model_type == "PertOpt":
         criterion = nn.L1Loss()
 
