@@ -116,7 +116,6 @@ class Pert_ShortestPathNet(nn.Module):
 class BB_ShortestPathNet(nn.Module):
     '''
     This net is equipped to run an m-by-m grid graphs. No A matrix is necessary.
-    Not quite working. No signal is backpropagating?
     '''
     def __init__(self, m, context_size, device='cpu'):
         super().__init__()
