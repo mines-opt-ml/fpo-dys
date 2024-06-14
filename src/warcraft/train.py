@@ -1,5 +1,5 @@
 from src.warcraft import trainer
-from src.warcraft.models import WarcraftShortestPathNet
+from src.warcraft.models import WarcraftShortestPathNet, Cvx_WarcraftShortestPathNet
 import argparse
 import os
 import dill
@@ -31,6 +31,8 @@ def main(args):
     # initialize model, prepare to train
     if args.model_type == "DYS":
         net = WarcraftShortestPathNet(args.grid_size, A, b, args.device)
+    elif args.model_type == "CVX":
+        net = Cvx_WarcraftShortestPathNet(args.grid_size, A, b, args.device) 
     else:
         print('\n Other models not implemented yet, sorry. \n')
         return
