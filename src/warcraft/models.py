@@ -56,7 +56,7 @@ class WarcraftShortestPathNet(DYS_opt_net):
             return cost_vec
     
     def F(self, z, cost_vec):
-        return cost_vec + 0.0005*z
+        return cost_vec + 0.5*z
     
     def test_time_forward(self, d):
         return self._data_space_forward(d)

@@ -46,7 +46,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
         raise TypeError("Please choose a supported model!")
 
     ## Initialize arrays that will be returned and checkpoint directory
-    val_loss_hist= []
+    val_regret_hist= []
     test_regret_hist = []
     test_acc_hist = []
     val_acc_hist = []
@@ -61,17 +61,17 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
     net.to('cpu')
     curr_val_acc = accuracy(net, net.shortest_path_solver, loader_val)
     val_acc_hist.append(curr_val_acc)
-    best_val_loss = metric(net, net.shortest_path_solver, loader_val)
+    best_val_regret = metric(net, net.shortest_path_solver, loader_val)
 
-    print('Initial validation regret is ', best_val_loss)
-    val_loss_hist.append(best_val_loss)
-    time_till_best_val_loss = 0
+    print('Initial validation regret is ', best_val_regret)
+    val_regret_hist.append(best_val_regret)
+    time_till_best_val_regret = 0
 
      ## Compute initial test loss
-    best_test_loss = metric(net,net.shortest_path_solver, loader_test)
+    best_test_regret = metric(net,net.shortest_path_solver, loader_test)
     best_test_acc = accuracy(net, net.shortest_path_solver, loader_test)
-    print('Initial test regret is ', best_test_loss)
-    test_regret_hist.append(best_test_loss)
+    print('Initial test regret is ', best_test_regret)
+    test_regret_hist.append(best_test_regret)
     test_acc_hist.append(best_test_acc)
    
     ## Train!
@@ -143,49 +143,50 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
         ## Now compute loss on validation set
         net.eval()
         net.to('cpu')
-        val_loss = metric(net, net.shortest_path_solver, loader_val)
+        val_regret = metric(net, net.shortest_path_solver, loader_val)
         val_acc = accuracy(net, net.shortest_path_solver, loader_val)
         val_acc_hist.append(val_acc)
-        val_loss_hist.append(val_loss)
+        val_regret_hist.append(val_regret)
         ## Do the same on test set for consistency with PyEPO
-        test_loss = metric(net, net.shortest_path_solver, loader_test)
+        test_regret = metric(net, net.shortest_path_solver, loader_test)
         test_acc = accuracy(net, net.shortest_path_solver, loader_test)
         test_acc_hist.append(test_acc)
-        test_regret_hist.append(test_loss)
+        test_regret_hist.append(test_regret)
 
         print('\n Current validation accuracy is ' + str(val_acc))
         if (epoch == int(max_epochs*0.6)) or (epoch == int(max_epochs*0.8)):
             for g in optimizer.param_groups:
                 g['lr'] /= 10
 
-        if val_loss < best_val_loss:
+        if val_regret < best_val_regret:
             state_save_name = checkpt_path+'best.pth'
             torch.save(net.state_dict(), state_save_name)
             # If we have achieved lowest validation thus far, this will be the model selected.
             # So, we compute test loss
-            best_test_loss = metric(net,net.shortest_path_solver, loader_test)
+            best_test_regret = metric(net,net.shortest_path_solver, loader_test)
             best_test_acc = accuracy(net, net.shortest_path_solver, loader_test)
-            best_val_loss = val_loss
-            print(f'Best test regret is {best_test_loss} achieved at epoch {epoch}')
-            time_till_best_val_loss = sum(epoch_time_hist)
+            best_val_regret = val_regret
+            print(f'Best test regret is {best_test_regret} achieved at epoch {epoch}')
+            print(f'Best test accuracy is {best_test_acc} achieved at epoch {epoch}')
+            time_till_best_val_regret = sum(epoch_time_hist)
         
-        print('epoch: ', epoch, 'validation regret is ', val_loss, 'epoch time: ', epoch_time)
+        print('epoch: ', epoch, 'validation regret is ', val_regret, 'epoch time: ', epoch_time)
 
     state_save_name = checkpt_path+'last.pth'
     torch.save(net.state_dict(), state_save_name)
-    if time_till_best_val_loss < 1e-6:
-        time_till_best_val_loss = sum(epoch_time_hist)
+    if time_till_best_val_regret < 1e-6:
+        time_till_best_val_regret = sum(epoch_time_hist)
 
     # Collect results
-    results = {"val_loss_hist": val_loss_hist,
+    results = {"val_regret_hist": val_regret_hist,
                "train_mse_loss_hist": train_mse_loss_hist,
                "val_acc_hist": val_acc_hist,
                "test_regret_hist": test_regret_hist,
                "test_acc_hist": test_acc_hist,
                "epoch_time_hist": epoch_time_hist,
-               "best_test_loss": best_test_loss,
+               "best_test_regret": best_test_regret,
                "best_test_acc": best_test_acc,
-               "time_till_best_val_loss":time_till_best_val_loss
+               "time_till_best_val_regret":time_till_best_val_regret
                 }
         
     return results
