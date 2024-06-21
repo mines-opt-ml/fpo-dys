@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import torch.nn as nn
 import os
 import time
 
@@ -83,3 +84,8 @@ def evaluate(nnet, optmodel, dataloader):
     print("Path Accuracy: {:.2f}%".format(df["Accuracy"].mean()*100))
     print("Optimality Ratio: {:.2f}%".format(df["Optimal"].mean()*100))
     return df
+
+class hammingLoss(nn.Module):
+    def forward(self, wp, w):
+        loss = wp * (1.0 - w) + (1.0 - wp) * w
+        return loss.mean(dim=0).sum()
