@@ -32,12 +32,15 @@ def main(args):
     if args.model_type == "DYS":
         net = WarcraftShortestPathNet(args.grid_size, A, b, args.device)
     elif args.model_type == "CVX":
-        net = Cvx_WarcraftShortestPathNet(args.grid_size, A, b, args.device) 
-    elif args.model_type == "BBOpt" or args.model_type == "PertOpt":
-        net = Pert_WarcraftShortestPathNet(args.grid_size, A, b, args.device)
+        net = Cvx_WarcraftShortestPathNet(args.grid_size, A, b, args.device)
+    elif args.model_type == "PertOpt" or args.model_type == "BB":
+        net =  Pert_WarcraftShortestPathNet(args.grid_size)
+    else:
+        print('\n Please choose an allowed model. \n')
         return
 
     net.to(args.device)
+
 
     # Train!
     print('\n---- Model type= ' + args.model_type + ' Grid size = ' + str(args.grid_size) + '---\n')

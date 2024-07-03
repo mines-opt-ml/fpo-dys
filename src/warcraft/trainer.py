@@ -10,6 +10,7 @@ from src.shortest_path.utils import edge_to_node
 from src.shortest_path.shortest_path_utils import convert_to_grid_torch, evaluate 
 from src.utils.accuracy import accuracy
 from src.utils.evaluate import evaluate
+from src.warcraft.utils import hammingLoss
 import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,13 +32,15 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
     # Initialize loss and evaluation metric
     if model_type == "DYS" or model_type == "CVX":
         criterion = nn.MSELoss()
-    elif model_type == "BBOpt" or model_type == "PertOpt":
+    elif model_type == "BBOpt":
+        criterion = hammingLoss()
+    elif model_type == "PertOpt":
         criterion = nn.L1Loss()
 
     metric = pyepo.metric.regret
 
     if model_type == "BBOpt":
-        dbb = pyepo.func.blackboxOpt(net.shortest_path_solver, lambd=5, processes=1)
+        dbb = pyepo.func.blackboxOpt(net.shortest_path_solver, lambd=10, processes=1)
     elif model_type == "PertOpt":
         ptb = pyepo.func.perturbedOpt(net.shortest_path_solver, n_samples=3, sigma=1.0, processes=2)
     elif model_type == "DYS" or model_type == "CVX":

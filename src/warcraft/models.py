@@ -7,6 +7,8 @@ from pyepo.model.grb import shortestPathModel
 from pyepo.model.grb.grbmodel import optGrbModel
 from torchvision.models import resnet18
 from src.shortest_path.shortest_path_utils import shortestPathModel_8
+import gurobipy as gp
+from gurobipy import GRB
 
 class WarcraftShortestPathNet(DYS_opt_net):
     def __init__(self, grid_size, A, b, device='mps'):
@@ -281,15 +283,9 @@ class shortestPathModel(optGrbModel):
         sol = sol.reshape(-1)
         return sol, self._model.objVal
     
-
-# init model
-k = 12
-grid = (k, k)
-optmodel = shortestPathModel(grid)
-
 # Model for perturbation-based approaches
 class Pert_WarcraftShortestPathNet(nn.Module):
-    def __init__(self, grid_size, A, b, device='mps'):
+    def __init__(self, grid_size, device='mps'):
         super().__init__()
         self.device = device
         # These layers are like resnet18
@@ -304,7 +300,7 @@ class Pert_WarcraftShortestPathNet(nn.Module):
         # max pooling
         self.maxpool2 = nn.AdaptiveMaxPool2d((grid_size, grid_size))\
         # Optimization layer. Can be used within test_time_forward
-        self.shortest_path_solver = shortestPathModel((12, 12))
+        self.shortest_path_solver = shortestPathModel((grid_size, grid_size))
 
     def _data_space_forward(self, d):
         h = self.conv1(d)
@@ -317,14 +313,7 @@ class Pert_WarcraftShortestPathNet(nn.Module):
         # reshape for optmodel
         out = torch.squeeze(out, 1)
         cost_vec = out.reshape(out.shape[0], -1)
-        if self.training:
-            batch_size = cost_vec.shape[0]
-            train_cost_vec = torch.zeros((batch_size, len(self.shortest_path_solver.edges)),device=self.device)
-            for e, edge in enumerate(self.shortest_path_solver.edges):
-                train_cost_vec[:,e] = cost_vec[:,edge[1]]
-            return train_cost_vec
-        else:
-            return cost_vec
+        return cost_vec
         
      # Put it all together
     def forward(self, d):
