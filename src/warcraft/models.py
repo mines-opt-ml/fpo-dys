@@ -288,7 +288,7 @@ grid = (k, k)
 optmodel = shortestPathModel(grid)
 
 # Model for perturbation-based approaches
-class WarcraftShortestPathNet(nn.Module):
+class Pert_WarcraftShortestPathNet(nn.Module):
     def __init__(self, grid_size, A, b, device='mps'):
         super().__init__()
         self.device = device
