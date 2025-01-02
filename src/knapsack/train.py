@@ -7,6 +7,16 @@ import torch
 import json
 
 def main(args):
+    ''' Main function to train all models for knapsack problem.
+    
+        Note: Specify the model using an args keyword.
+
+        Args:
+            args (argparse): Command line arguments.
+
+        Returns:
+            Writes results to json file with location specified by args.
+    '''
     # fetch data
     data_path = args.data_dir + 'Knapsack_training_data_' + str(args.num_knapsack) + '_' + str(args.num_item) + '_data-deg_' + str(args.data_deg) +'.p'
     if os.path.exists(data_path):
