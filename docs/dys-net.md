@@ -6,6 +6,11 @@ hide:
 ::: src.dys_opt_net.DYS_opt_net
     options:
       show_root_heading: false
+
+<!---
+::: src.dys_opt_net.DYS_opt_net
+    options:
+      show_root_heading: false
       show_source: false  
       members: None
 
@@ -71,3 +76,4 @@ hide:
       show_source: true            
 
 <br>
+-->
