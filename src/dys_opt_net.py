@@ -1,13 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 22 16:19:54 2022
-
-@author: danielmckenzie
-
-The DYS Layer. Pure gold
-"""
-
 import torch
 import torch.nn as nn
 from abc import ABC, abstractmethod
@@ -82,13 +72,22 @@ class DYS_opt_net(nn.Module, ABC):
 
             Args:
                 z (tensor): point in Euclidean space
-                w (tensor): Parameters defining function and its gradient
+                w (tensor): Parameters defining objective function.
+
+            Returns:
+                Fz (tensor): Gradient of objective function at $\mathsf{z}$
         '''
         pass
 
     @abstractmethod
     def _data_space_forward(self, d):
-      ''' Specify the map from context d to parameters of F.
+      ''' Specify the map from context d to parameters of F. This will be used during training.
+        
+            Args:
+                d (tensor): Contextual data
+
+            Returns:
+                w (tensor): inference/solution to parameterized optimization problem.
       '''
       pass
 
@@ -96,6 +95,12 @@ class DYS_opt_net(nn.Module, ABC):
     def test_time_forward(self, d):
        '''
        Specify test time behaviour, e.g. use a combinatorial solver on the forward pass.
+
+         Args:
+                d (tensor): Contextual data
+            
+        Returns:
+                x (tensor): inference/solution to parameterized optimization problem.
        '''
        pass
 
