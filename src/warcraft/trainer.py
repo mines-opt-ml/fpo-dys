@@ -42,7 +42,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
     if model_type == "BBOpt":
         dbb = pyepo.func.blackboxOpt(net.shortest_path_solver, lambd=10, processes=1)
     elif model_type == "PertOpt":
-        ptb = pyepo.func.perturbedOpt(net.shortest_path_solver, n_samples=3, sigma=1.0, processes=2)
+        ptb = pyepo.func.perturbedOpt(net.shortest_path_solver, n_samples=1, sigma=1.0, processes=2)
     elif model_type == "DYS" or model_type == "CVX":
         pass
     else:
@@ -71,7 +71,7 @@ def trainer(net, train_dataset, test_dataset, val_dataset, edges, grid_size, max
     time_till_best_val_regret = 0
 
      ## Compute initial test loss
-    best_test_regret = metric(net,net.shortest_path_solver, loader_test)
+    best_test_regret = metric(net, net.shortest_path_solver, loader_test)
     best_test_acc = accuracy(net, net.shortest_path_solver, loader_test)
     print('Initial test regret is ', best_test_regret)
     test_regret_hist.append(best_test_regret)

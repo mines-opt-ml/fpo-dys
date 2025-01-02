@@ -33,7 +33,7 @@ def main(args):
         net = WarcraftShortestPathNet(args.grid_size, A, b, args.device)
     elif args.model_type == "CVX":
         net = Cvx_WarcraftShortestPathNet(args.grid_size, A, b, args.device)
-    elif args.model_type == "PertOpt" or args.model_type == "BB":
+    elif args.model_type == "PertOpt" or args.model_type == "BBOpt":
         net =  Pert_WarcraftShortestPathNet(args.grid_size)
     else:
         print('\n Please choose an allowed model. \n')

@@ -319,7 +319,4 @@ class Pert_WarcraftShortestPathNet(nn.Module):
     def forward(self, d):
         w = self._data_space_forward(d)
         return w
-
-
-
-
+    
