@@ -1,3 +1,7 @@
+''' 
+Various utility functions for knapsack problem.
+
+'''
 import torch.nn as nn
 import torch
 

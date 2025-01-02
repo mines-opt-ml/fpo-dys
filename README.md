@@ -23,11 +23,11 @@ to train our ```DYS``` model on a sample knapsack task. To duplicate, for exampl
 
 _Learning to Optimize Integer Linear Programs with Davis-Yin Splitting_ (**[arXiv Link](https://arxiv.org/abs/2301.13395)**)
     
-    @article{mckenzie2023faster,
-      title={Faster Predict-and-Optimize with Davis-Yin Splitting},
-      author={McKenzie, Daniel and Wu Fung, Samy and Heaton, Howard},
-      journal={arXiv preprint arXiv:2301.13395},
-      year={2023}
-    }
+    @article{mckenzie2024differentiating,
+  title={Differentiating through integer linear programs with quadratic regularization and davis-yin splitting},
+  author={McKenzie, Daniel and Heaton, Howard and Fung, Samy Wu},
+  journal={Transactions on Machine Learning Research},
+  year={2024}
+  }
 
 See [documentation site](https://fpo-dys.research.typal.academy) for more details.

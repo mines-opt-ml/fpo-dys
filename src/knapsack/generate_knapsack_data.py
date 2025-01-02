@@ -7,6 +7,14 @@ import os
 
 # generate actual data
 def main(args):
+    ''' Main function to generate knapsack data.
+    
+        Args:
+            args (argparse): Command line arguments.
+        
+        Returns:
+            Writes results to pickle file with location specified by args.
+    '''
     
     # unpack args
     num_knapsack = args.num_knapsack

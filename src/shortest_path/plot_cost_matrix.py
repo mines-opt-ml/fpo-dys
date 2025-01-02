@@ -5,6 +5,14 @@ import numpy as np
 import dill
 
 def main(args):
+    '''' Utility function for viewing the predicted cost vector explicitly as a grid.
+
+        Args:
+            args (argparse): Command line arguments.
+
+        Returns:
+            Writes results to json file with location specified
+    '''
     # fetch data
     print(args.data_dir)
     data_path = os.path.join(args.data_dir, 'shortest_path_training_data_' + str(args.grid_size) +'.p')
